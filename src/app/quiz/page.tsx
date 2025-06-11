@@ -384,7 +384,7 @@ export default function QuizPage() {
                 }}
                 className={`option-card glass-morphism p-4 rounded-2xl cursor-pointer ${selected ? "selected" : ""}`}
               >
-                <div className="icon-container w-10 h-10 rounded-xl mb-2 flex items-center justify-center">
+                <div className="icon-container w-10 h-10 rounded-full mb-2 flex items-center justify-center">
                   {optionIcon[opt] ?? <CheckCircleIcon className="w-5 h-5 text-emerald-400" />}
                 </div>
                 <span className="text-sm font-medium whitespace-pre-wrap">{opt}</span>
