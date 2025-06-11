@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+html,
+body,
+main {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+/* basic reset */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  color: #fff;
+  background: #000;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Fade in utility */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out both;
+}
+
+/* Background motion gradient */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-motion {
+  background: radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.12), transparent 60%), radial-gradient(circle at 80% 80%, rgba(20, 184, 166, 0.12), transparent 60%);
+  background-size: 200% 200%;
+  animation: gradientShift 18s ease-in-out infinite;
+}
+
+/* bottom glow */
+.bg-bottom-glow::after {
+  content: "";
+  position: absolute;
+  bottom: -14rem;
+  left: 50%;
+  width: 120%;
+  height: 45rem;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at center top, rgba(20,184,166,0.28), transparent 75%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* starry top overlay */
+.bg-top-stars::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50vh;
+  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+/* Ensure full height sections behave */
+section {
+  position: relative;
+}
