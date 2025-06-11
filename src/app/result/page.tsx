@@ -23,7 +23,7 @@ interface QuizFormAnswers {
 }
 
 export default function ResultPage() {
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ReturnType<typeof generateResult> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -167,7 +167,7 @@ export default function ResultPage() {
 
           {/* Testimonials Grid */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {universalSection.testimonials.map((testimonial: any, index: number) => (
+            {universalSection.testimonials.map((testimonial: { quote: string; author: string }, index: number) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -175,7 +175,7 @@ export default function ResultPage() {
                 transition={{ duration: 0.6, delay: 1.0 + (index * 0.1), ease: [0.23, 1, 0.32, 1] }}
                 className="glass-morphism p-6 rounded-2xl"
               >
-                <p className="text-gray-300 mb-4 italic">"{testimonial.quote}"</p>
+                <p className="text-gray-300 mb-4 italic">&ldquo;{testimonial.quote}&rdquo;</p>
                 <p className="text-emerald-400 font-semibold">{testimonial.author}</p>
               </motion.div>
             ))}

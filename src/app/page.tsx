@@ -46,7 +46,7 @@ const AnimatedText = ({ children, delay = 0 }: { children: string; delay?: numbe
 
 
 export default function Home() {
-  const [globeReady, setGlobeReady] = useState(false);
+  const [, setGlobeReady] = useState(false);
 
   const handleGlobeReady = () => {
     setGlobeReady(true);
@@ -121,7 +121,7 @@ export default function Home() {
 
             {/* Subtitle with Word-by-Word Animation */}
             <div className="text-lg sm:text-xl md:text-2xl text-emerald-300 mb-4 font-medium">
-              <AnimatedText delay={2.1}>This FREE "Shipping Cost Analyzer"</AnimatedText>
+              <AnimatedText delay={2.1}>This FREE &ldquo;Shipping Cost Analyzer&rdquo;</AnimatedText>
               <br />
               <AnimatedText delay={2.5}>will save you</AnimatedText>{' '}
               <span className="text-emerald-400 font-bold">
@@ -353,7 +353,7 @@ export default function Home() {
               name: "Sarah",
               handle: "Skincare Brand (1,200 orders/month)"
             },
-            text: "Switched from Australia Post to Future's cubic weight line and saved $4,200 per month on the same volume"
+            text: "Switched from Australia Post to Future&apos;s cubic weight line and saved $4,200 per month on the same volume"
           },
           {
             author: {
@@ -367,7 +367,7 @@ export default function Home() {
               name: "Lisa",
               handle: "Supplement Brand (3,000 orders/month)"
             },
-            text: "The China 3PL setup saved us $8 per order on international shipping - that's $24,000 per month!"
+            text: "The China 3PL setup saved us $8 per order on international shipping - that&apos;s $24,000 per month!"
           }
                  ]}
        />
