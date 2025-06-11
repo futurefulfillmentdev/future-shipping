@@ -178,7 +178,7 @@ But with a few smart upgrades, you can dramatically reduce time and wasted spend
         ],
         ctaTitle: "🎁 Get Our Free Fulfillment Toolkit",
         ctaText: "Learn how to reduce your workload and improve margins with our curated DIY playbook.",
-        ctaUrl: "https://futurefulfilment.com/free-toolkit",
+        ctaUrl: "https://j63rzjzdahixjfu3foqc.app.clientclub.net/communities/groups/ecommerce-insiders-academy/home?invite=67b1bb500ca4a3bf1bba9912",
         note: "(Just by switching to OMS tools and optimizing packaging)"
       };
 
@@ -196,7 +196,7 @@ Switching to a single Future Fulfillment warehouse will give you:`,
         ],
         ctaTitle: "📞 Book Your Free Fulfillment Strategy Call",
         ctaText: "We'll show you how to transition smoothly and start saving within days.",
-        ctaUrl: "https://futurefulfilment.com/book-call",
+        ctaUrl: "https://futurefulfilment.com/ausnz#section-0XX8Pbq9ZQ",
         note: null
       };
 
@@ -214,7 +214,7 @@ Future Fulfillment's VIC, NSW, and QLD locations give you:`,
         ],
         ctaTitle: "📞 Book Your Free Fulfillment Strategy Call",
         ctaText: "We'll map your inventory and show you exactly how much you'll save.",
-        ctaUrl: "https://futurefulfilment.com/book-call",
+        ctaUrl: "https://futurefulfilment.com/ausnz#section-0XX8Pbq9ZQ",
         note: null
       };
 
@@ -232,7 +232,7 @@ Future Fulfillment's VIC, NSW, and QLD locations give you:`,
         ],
         ctaTitle: "📞 Book Your Free Fulfillment Strategy Call", 
         ctaText: "We'll show you how to optimize your global shipping strategy.",
-        ctaUrl: "https://futurefulfilment.com/book-call",
+        ctaUrl: "https://futurefulfilment.com/ausnz#section-0XX8Pbq9ZQ",
         note: null
       };
 

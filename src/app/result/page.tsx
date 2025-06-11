@@ -189,7 +189,7 @@ export default function ResultPage() {
             className="text-center"
           >
             <a 
-              href="https://futurefulfilment.com/book-call"
+              href="https://futurefulfilment.com/ausnz#section-0XX8Pbq9ZQ"
               target="_blank"
               rel="noopener noreferrer"
               className="liquid-button text-white font-semibold text-lg px-8 py-4 rounded-full inline-block mb-6"
