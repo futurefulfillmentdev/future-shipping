@@ -14,9 +14,19 @@ export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
   const handleLoad = (spline: any) => {
     splineRef.current = spline;
     
-    // Just play the animation at normal speed
-    spline.setSpeed(1.0); // Normal speed
-    spline.play();
+    try {
+      // Check if setSpeed method exists before calling it
+      if (typeof spline.setSpeed === 'function') {
+        spline.setSpeed(1.0); // Normal speed
+      }
+      
+      // Check if play method exists before calling it
+      if (typeof spline.play === 'function') {
+        spline.play();
+      }
+    } catch (error) {
+      console.log('Spline animation controls not available:', error);
+    }
     
     // Trigger text animations immediately
     onGlobeReady?.();

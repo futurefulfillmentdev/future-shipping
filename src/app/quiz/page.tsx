@@ -268,16 +268,16 @@ export default function QuizPage() {
     // Save converted data to localStorage
     localStorage.setItem('quizAnswers', JSON.stringify(formAnswers));
     
-    // Show processing animation for 3 seconds, then confetti, then navigate
+    // Show processing animation for 4.5 seconds (slower), then confetti, then navigate
     setTimeout(() => {
       setIsProcessing(false);
       setShowConfetti(true);
       
-      // Show confetti for 2.5 seconds then navigate
+      // Show confetti for 3 seconds then navigate
       setTimeout(() => {
         router.push('/result');
-      }, 2500);
-    }, 3000);
+      }, 3000);
+    }, 4500);
   };
 
   const isStepValid = useMemo(() => {
@@ -428,20 +428,28 @@ export default function QuizPage() {
             <div className="mb-8 flex flex-col items-center">
               {/* Animated Processing Icon */}
               <div className="relative mb-6">
+                {/* Main spinning ring */}
                 <div className="w-24 h-24 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center animate-pulseGlow">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full bg-white animate-spin">
-                      <div className="w-full h-full rounded-full bg-gradient-to-r from-emerald-500 to-transparent"></div>
-                    </div>
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 flex items-center justify-center">
+                    {/* Brain/AI icon in center */}
+                    <svg className="w-10 h-10 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 001.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                    </svg>
                   </div>
                 </div>
                 
-                {/* Orbiting dots */}
-                <div className="absolute inset-0 animate-spin">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full absolute top-0 left-1/2 transform -translate-x-1/2"></div>
-                  <div className="w-2 h-2 bg-teal-400 rounded-full absolute bottom-0 left-1/2 transform -translate-x-1/2"></div>
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full absolute left-0 top-1/2 transform -translate-y-1/2"></div>
-                  <div className="w-2 h-2 bg-teal-400 rounded-full absolute right-0 top-1/2 transform -translate-y-1/2"></div>
+                {/* Floating analysis particles */}
+                <div className="absolute inset-0 animate-spin" style={{ animationDuration: '8s' }}>
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full absolute top-2 left-1/2 transform -translate-x-1/2 animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 bg-teal-400 rounded-full absolute bottom-2 left-1/2 transform -translate-x-1/2 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full absolute left-2 top-1/2 transform -translate-y-1/2 animate-pulse" style={{ animationDelay: '1s' }}></div>
+                  <div className="w-1.5 h-1.5 bg-teal-400 rounded-full absolute right-2 top-1/2 transform -translate-y-1/2 animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+                </div>
+                
+                {/* Outer orbital ring */}
+                <div className="absolute inset-0 w-32 h-32 -top-4 -left-4 animate-spin" style={{ animationDuration: '12s' }}>
+                  <div className="w-2 h-2 bg-emerald-300/60 rounded-full absolute top-0 left-1/2 transform -translate-x-1/2"></div>
+                  <div className="w-2 h-2 bg-teal-300/60 rounded-full absolute bottom-0 left-1/2 transform -translate-x-1/2"></div>
                 </div>
               </div>
               
@@ -452,26 +460,31 @@ export default function QuizPage() {
               </p>
               
               {/* Processing Steps Animation */}
-              <div className="space-y-4 text-sm text-gray-400 max-w-md">
-                <div className="flex items-center gap-3">
+              <div className="space-y-5 text-sm text-gray-400 max-w-lg">
+                <div className="flex items-center gap-3 transition-all duration-500">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span>Analyzing order volume and growth patterns</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-emerald-400/30 to-transparent"></div>
+                  <span className="text-gray-300">Analyzing order volume and growth patterns</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-emerald-400/40 to-transparent"></div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse animation-delay-500"></div>
-                  <span>Evaluating shipping destinations and customer locations</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-emerald-400/30 to-transparent animation-delay-500"></div>
+                <div className="flex items-center gap-3 transition-all duration-500" style={{ animationDelay: '1s' }}>
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                  <span className="text-gray-300">Evaluating shipping destinations and customer locations</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-emerald-400/40 to-transparent" style={{ animationDelay: '1s' }}></div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse animation-delay-1000"></div>
-                  <span>Comparing against 1,000+ successful Australian brands</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-emerald-400/30 to-transparent animation-delay-1000"></div>
+                <div className="flex items-center gap-3 transition-all duration-500" style={{ animationDelay: '2s' }}>
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+                  <span className="text-gray-300">Comparing against 1,000+ successful Australian brands</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-emerald-400/40 to-transparent" style={{ animationDelay: '2s' }}></div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse animation-delay-1500"></div>
-                  <span>Calculating optimal fulfillment strategy and savings</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-emerald-400/30 to-transparent animation-delay-1500"></div>
+                <div className="flex items-center gap-3 transition-all duration-500" style={{ animationDelay: '3s' }}>
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '3s' }}></div>
+                  <span className="text-gray-300">Calculating optimal fulfillment strategy and savings</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-emerald-400/40 to-transparent" style={{ animationDelay: '3s' }}></div>
+                </div>
+                <div className="flex items-center gap-3 transition-all duration-500" style={{ animationDelay: '4s' }}>
+                  <div className="w-2 h-2 bg-teal-400 rounded-full animate-pulse" style={{ animationDelay: '4s' }}></div>
+                  <span className="text-emerald-300 font-medium">Generating personalized recommendations</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-teal-400/50 to-transparent" style={{ animationDelay: '4s' }}></div>
                 </div>
               </div>
             </div>
