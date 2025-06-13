@@ -63,9 +63,9 @@ export default function Home() {
   return (
     <>
       <main className="min-h-screen bg-slate-900 bg-motion bg-bottom-glow bg-top-stars relative overflow-hidden">
-        <div className="relative min-h-screen flex items-center justify-center">
+        <div className="relative min-h-screen flex items-center justify-center pt-safe-top">
           {/* Simple Gradient Overlay from Top */}
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-emerald-500/20 via-transparent to-transparent pointer-events-none z-5"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#6BE53D]/20 via-transparent to-transparent pointer-events-none z-5"></div>
 
           {/* Earth Animation - Full Hero Background */}
           <EarthAnimation onGlobeReady={handleGlobeReady} />
@@ -74,7 +74,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none z-10" />
           
           {/* Content */}
-          <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
+          <div className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-16 sm:pt-8">
             {/* Badge */}
           <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -84,55 +84,51 @@ export default function Home() {
                 ease: [0.23, 1, 0.32, 1],
                 delay: 0.5
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-morphism mb-8"
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full glass-morphism mb-6 sm:mb-8"
             >
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              <span className="text-emerald-300 text-sm font-medium">
-            AI-Powered Shipping Optimization
+              <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#6BE53D' }}></div>
+              <span className="text-xs sm:text-sm font-medium" style={{ color: '#6BE53D' }}>
+            AI Compares the Market for eCommerce Fulfillment
               </span>
           </motion.div>
 
-            {/* Main Headline with Word-by-Word Animation */}
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              <AnimatedText delay={0.8}>Find Your</AnimatedText>{' '}
-                <motion.span 
-                initial={{ 
-                  opacity: 0, 
-                  filter: 'blur(10px)',
-                  y: 20
-                }}
-                animate={{ 
-                  opacity: 1, 
-                  filter: 'blur(0px)',
-                  y: 0
-                }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.23, 1, 0.32, 1],
-                  delay: 1.1
-                }}
-                className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent"
-              >
-                Cheapest
-                </motion.span>
-              <br />
-              <AnimatedText delay={1.4}>Fulfillment Option</AnimatedText>
-            </h1>
+            {/* Main Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ 
+                duration: 0.8, 
+                ease: [0.23, 1, 0.32, 1],
+                delay: 2.4
+              }}
+              className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-6 sm:mb-8 leading-tight"
+            >
+              Find Your{' '}
+              <span className="bg-gradient-to-r from-[#6BE53D] to-[#4ADE80] bg-clip-text text-transparent">
+                Perfect
+              </span>{' '}
+              3PL
+            </motion.h1>
 
-            {/* Subtitle with Word-by-Word Animation */}
-            <div className="text-lg sm:text-xl md:text-2xl text-emerald-300 mb-4 font-medium">
-              <AnimatedText delay={2.1}>This FREE &ldquo;Shipping Cost Analyzer&rdquo;</AnimatedText>
-              <br />
-              <AnimatedText delay={2.5}>will save you</AnimatedText>{' '}
-              <span className="text-emerald-400 font-bold">
-                <AnimatedText delay={2.9}>$1000s per month</AnimatedText>
-              </span>
-            </div>
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ 
+                duration: 0.8, 
+                ease: [0.23, 1, 0.32, 1],
+                delay: 3.2
+              }}
+              className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-[#6BE53D] mb-4 sm:mb-6 leading-relaxed"
+            >
+              AI compares 50+ providers to find your{' '}
+              <span className="font-bold">perfect match</span>
+            </motion.p>
             
             {/* Description with Word-by-Word Animation */}
-            <div className="text-base sm:text-lg text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+            <div className="text-sm sm:text-base md:text-lg text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed">
               <AnimatedText delay={3.5}>
-                We analyzed 1,000+ eCommerce brands across Australia & China to create an AI that instantly finds your most cost-effective shipping strategy
+                Compare costs, speed, and reliability across Australia's top 3PLs, China fulfillment centers, and DIY shipping solutions in just 3 minutes
               </AnimatedText>
             </div>
             
@@ -145,17 +141,17 @@ export default function Home() {
                 ease: [0.23, 1, 0.32, 1],
                 delay: 4.8
               }}
-              className="mb-16"
+              className="mb-12 sm:mb-16"
             >
               <Link href="/quiz">
-                <button className="liquid-button text-white font-semibold text-base sm:text-lg px-6 sm:px-8 py-4 rounded-full">
-                  <div className="sm:hidden flex flex-col items-center">
-                    <span>Get Started</span>
-                    <span className="text-xs text-emerald-300 font-normal">100% Free</span>
-                  </div>
-                  <span className="hidden sm:inline">Get My FREE Analysis in 3 Minutes →</span>
+                <button className="liquid-button text-white font-semibold text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full">
+                  <span className="sm:hidden">Get Started</span>
+                  <span className="hidden sm:inline">Compare Fulfillment Options FREE →</span>
                 </button>
               </Link>
+              <div className="sm:hidden mt-2">
+                <span className="text-xs font-normal" style={{ color: '#6BE53D' }}>100% Free</span>
+              </div>
           </motion.div>
           
             {/* Trust Indicators */}
@@ -167,18 +163,18 @@ export default function Home() {
                 ease: [0.23, 1, 0.32, 1],
                 delay: 5.3
               }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-gray-400"
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400"
             >
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 text-emerald-400">✓</div>
+                <div className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: '#6BE53D' }}>✓</div>
                 <span>Trusted by 500+ Australian brands</span>
                     </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 text-emerald-400">✓</div>
+                <div className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: '#6BE53D' }}>✓</div>
                 <span>No credit card required</span>
                   </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 text-emerald-400">✓</div>
+                <div className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: '#6BE53D' }}>✓</div>
                 <span>100% free analysis</span>
                 </div>
               </motion.div>
@@ -251,7 +247,7 @@ export default function Home() {
             className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight"
           >
             Get Your Complete Shipping Strategy That can Save{' '}
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#6BE53D] to-teal-400 bg-clip-text text-transparent">
                 30-50%
             </span>{' '}
               on Fulfillment Costs
@@ -300,7 +296,7 @@ export default function Home() {
                   className="flex items-start gap-4 text-left group"
                 >
                   {/* Checkmark */}
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-[#6BE53D] to-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
@@ -308,7 +304,7 @@ export default function Home() {
                   
                   {/* Content */}
                   <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-emerald-300 transition-colors duration-300">
+                    <h3 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-[#6BE53D] transition-colors duration-300">
                       {benefit.title}
                     </h3>
                     <p className="text-gray-300 text-base md:text-lg leading-relaxed">
@@ -332,14 +328,14 @@ export default function Home() {
             }}
           >
             <Link href="/quiz">
-              <button className="liquid-button text-white font-semibold text-base sm:text-lg px-6 sm:px-8 py-4 rounded-full">
-                <div className="sm:hidden flex flex-col items-center">
-                  <span>Get Started</span>
-                  <span className="text-xs text-emerald-300 font-normal">100% Free</span>
-                </div>
+              <button className="liquid-button text-white font-semibold text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full">
+                <span className="sm:hidden">Get Started</span>
                 <span className="hidden sm:inline">Get My FREE Shipping Strategy in 3 Minutes</span>
               </button>
             </Link>
+            <div className="sm:hidden mt-2">
+              <span className="text-xs font-normal" style={{ color: '#6BE53D' }}>100% Free</span>
+            </div>
           </motion.div>
         </div>
       </section>

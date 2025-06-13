@@ -61,7 +61,7 @@ export const GradientCard = ({ step, title, description, icon: Icon, delay = 0 }
           height: "380px",
           transformStyle: "preserve-3d",
           backgroundColor: "#0e131f",
-          boxShadow: "0 -10px 100px 10px rgba(16, 185, 129, 0.15), 0 0 10px 0 rgba(0, 0, 0, 0.5)",
+          boxShadow: "0 -10px 100px 10px rgba(107, 229, 61, 0.15), 0 0 10px 0 rgba(0, 0, 0, 0.5)",
         }}
         initial={{ y: 0 }}
         animate={{
@@ -109,13 +109,13 @@ export const GradientCard = ({ step, title, description, icon: Icon, delay = 0 }
           }}
         />
 
-        {/* Emerald glow effect replacing purple */}
+        {/* Brand green glow effect */}
         <motion.div
           className="absolute bottom-0 left-0 right-0 h-2/3 z-20"
           style={{
             background: `
-              radial-gradient(ellipse at bottom right, rgba(16, 185, 129, 0.6) -10%, rgba(20, 184, 166, 0) 70%),
-              radial-gradient(ellipse at bottom left, rgba(34, 197, 94, 0.6) -10%, rgba(16, 185, 129, 0) 70%)
+              radial-gradient(ellipse at bottom right, rgba(107, 229, 61, 0.6) -10%, rgba(20, 184, 166, 0) 70%),
+              radial-gradient(ellipse at bottom left, rgba(107, 229, 61, 0.6) -10%, rgba(107, 229, 61, 0) 70%)
             `,
             filter: "blur(40px)",
           }}
@@ -130,12 +130,12 @@ export const GradientCard = ({ step, title, description, icon: Icon, delay = 0 }
           }}
         />
 
-        {/* Central emerald glow */}
+        {/* Central brand green glow */}
         <motion.div
           className="absolute bottom-0 left-0 right-0 h-2/3 z-21"
           style={{
             background: `
-              radial-gradient(circle at bottom center, rgba(16, 185, 129, 0.7) -20%, rgba(20, 184, 166, 0) 60%)
+              radial-gradient(circle at bottom center, rgba(107, 229, 61, 0.7) -20%, rgba(20, 184, 166, 0) 60%)
             `,
             filter: "blur(45px)",
           }}
@@ -150,7 +150,7 @@ export const GradientCard = ({ step, title, description, icon: Icon, delay = 0 }
           }}
         />
 
-        {/* Enhanced bottom border glow with emerald colors */}
+        {/* Enhanced bottom border glow with brand green colors */}
         <motion.div
           className="absolute bottom-0 left-0 right-0 h-[2px] z-25"
           style={{
@@ -158,8 +158,8 @@ export const GradientCard = ({ step, title, description, icon: Icon, delay = 0 }
           }}
           animate={{
             boxShadow: isHovered
-              ? "0 0 20px 4px rgba(16, 185, 129, 0.9), 0 0 30px 6px rgba(34, 197, 94, 0.7), 0 0 40px 8px rgba(20, 184, 166, 0.5)"
-              : "0 0 15px 3px rgba(16, 185, 129, 0.8), 0 0 25px 5px rgba(34, 197, 94, 0.6), 0 0 35px 7px rgba(20, 184, 166, 0.4)",
+              ? "0 0 20px 4px rgba(107, 229, 61, 0.9), 0 0 30px 6px rgba(107, 229, 61, 0.7), 0 0 40px 8px rgba(20, 184, 166, 0.5)"
+              : "0 0 15px 3px rgba(107, 229, 61, 0.8), 0 0 25px 5px rgba(107, 229, 61, 0.6), 0 0 35px 7px rgba(20, 184, 166, 0.4)",
             opacity: isHovered ? 1 : 0.9,
             z: 0.5
           }}
@@ -213,7 +213,7 @@ export const GradientCard = ({ step, title, description, icon: Icon, delay = 0 }
 
             {/* Icon */}
             <div className="flex items-center justify-center w-full h-full relative z-10">
-              <Icon className="w-6 h-6 text-emerald-400" />
+              <Icon className="w-6 h-6" style={{ color: '#6BE53D' }} />
             </div>
           </motion.div>
 
@@ -232,7 +232,8 @@ export const GradientCard = ({ step, title, description, icon: Icon, delay = 0 }
           >
             {/* Step number */}
             <motion.div
-              className="text-emerald-300 text-sm font-medium mb-2"
+              className="text-sm font-medium mb-2"
+              style={{ color: '#6BE53D' }}
               initial={{ filter: "blur(3px)", opacity: 0.7 }}
               animate={{
                 filter: "blur(0px)",

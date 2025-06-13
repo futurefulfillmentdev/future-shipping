@@ -38,9 +38,9 @@ export function CTASection({
           transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
           className="relative glass-morphism p-12 md:p-16 rounded-3xl text-center animate-pulse-border"
         >
-          {/* Emerald glow effect */}
+          {/* Brand green glow effect */}
           {withGlow && (
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-emerald-500/10 rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#6BE53D]/10 via-transparent to-[#6BE53D]/10 rounded-3xl pointer-events-none" />
           )}
 
           <div className="relative z-10 space-y-6">
@@ -54,7 +54,7 @@ export function CTASection({
               >
                 <Badge
                   variant="outline"
-                  className="border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
+                  className="border-[#6BE53D]/30 bg-[#6BE53D]/10 text-[#6BE53D] hover:bg-[#6BE53D]/20"
                 >
                   {badge.text}
                 </Badge>
@@ -93,26 +93,30 @@ export function CTASection({
               transition={{ duration: 0.6, delay: 0.5, ease: [0.23, 1, 0.32, 1] }}
             >
               {action.href ? (
-                <Link href={action.href}>
-                  <button className="liquid-button text-white font-semibold text-base sm:text-lg px-6 sm:px-8 py-4 rounded-full">
-                    <div className="sm:hidden flex flex-col items-center">
-                      <span>Get Started</span>
-                      <span className="text-xs text-emerald-300 font-normal">100% Free</span>
-                    </div>
+                <div>
+                  <Link href={action.href}>
+                    <button className="liquid-button text-white font-semibold text-base sm:text-lg px-6 sm:px-8 py-4 rounded-full">
+                      <span className="sm:hidden">Get Started</span>
+                      <span className="hidden sm:inline">{action.text}</span>
+                    </button>
+                  </Link>
+                  <div className="sm:hidden mt-2">
+                    <span className="text-xs font-normal" style={{ color: '#6BE53D' }}>100% Free</span>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <button 
+                    onClick={action.onClick}
+                    className="liquid-button text-white font-semibold text-base sm:text-lg px-6 sm:px-8 py-4 rounded-full"
+                  >
+                    <span className="sm:hidden">Get Started</span>
                     <span className="hidden sm:inline">{action.text}</span>
                   </button>
-                </Link>
-              ) : (
-                <button 
-                  onClick={action.onClick}
-                  className="liquid-button text-white font-semibold text-base sm:text-lg px-6 sm:px-8 py-4 rounded-full"
-                >
-                  <div className="sm:hidden flex flex-col items-center">
-                    <span>Get Started</span>
-                    <span className="text-xs text-emerald-300 font-normal">100% Free</span>
+                  <div className="sm:hidden mt-2">
+                    <span className="text-xs font-normal" style={{ color: '#6BE53D' }}>100% Free</span>
                   </div>
-                  <span className="hidden sm:inline">{action.text}</span>
-                </button>
+                </div>
               )}
             </motion.div>
           </div>

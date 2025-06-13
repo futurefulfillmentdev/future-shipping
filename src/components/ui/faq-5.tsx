@@ -53,7 +53,7 @@ export const Faq5 = ({
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
           >
-            <Badge className="border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20">
+            <Badge className="border-[#6BE53D]/30 bg-[#6BE53D]/10 text-[#6BE53D] hover:bg-[#6BE53D]/20">
               {badge}
             </Badge>
           </motion.div>
@@ -93,12 +93,12 @@ export const Faq5 = ({
               }}
               className="mb-6 sm:mb-8 flex gap-4 sm:gap-6 group"
             >
-              <span className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30 font-mono text-xs sm:text-sm text-emerald-300 group-hover:bg-emerald-500/30 transition-colors duration-300">
+              <span className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full bg-[#6BE53D]/20 border border-[#6BE53D]/30 font-mono text-xs sm:text-sm text-[#6BE53D] group-hover:bg-[#6BE53D]/30 transition-colors duration-300">
                 {index + 1}
               </span>
               <div className="flex-1">
                 <div className="mb-2 sm:mb-3">
-                  <h3 className="text-lg sm:text-xl font-semibold text-white group-hover:text-emerald-300 transition-colors duration-300">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white group-hover:text-[#6BE53D] transition-colors duration-300">
                     {faq.question}
                   </h3>
                 </div>
@@ -120,13 +120,13 @@ export const Faq5 = ({
         >
           <Link href="/quiz">
             <button className="liquid-button text-white font-semibold text-base sm:text-lg px-6 sm:px-8 py-4 rounded-full mb-6">
-              <div className="sm:hidden flex flex-col items-center">
-                <span>Get Started</span>
-                <span className="text-xs text-emerald-300 font-normal">100% Free</span>
-              </div>
+              <span className="sm:hidden">Get Started</span>
               <span className="hidden sm:inline">Get My FREE Shipping Strategy in 3 Minutes</span>
             </button>
           </Link>
+          <div className="sm:hidden mt-2 mb-4">
+            <span className="text-xs font-normal" style={{ color: '#6BE53D' }}>100% Free</span>
+          </div>
           <p className="text-gray-400 text-sm">
             No credit card required. Get your complete analysis sent via email and SMS.
           </p>
@@ -136,12 +136,12 @@ export const Faq5 = ({
       {/* Animated Green Gradient Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Main animated gradient */}
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-gradient-to-tr from-emerald-500/30 via-teal-400/20 to-green-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-tl from-teal-500/25 via-emerald-400/15 to-green-500/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-gradient-to-r from-emerald-400/20 via-teal-300/15 to-green-300/10 rounded-full blur-2xl animate-drift"></div>
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-gradient-to-tr from-[#6BE53D]/30 via-[#6BE53D]/20 to-[#6BE53D]/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-tl from-[#6BE53D]/25 via-[#6BE53D]/15 to-[#6BE53D]/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-gradient-to-r from-[#6BE53D]/20 via-[#6BE53D]/15 to-[#6BE53D]/10 rounded-full blur-2xl animate-drift"></div>
         
         {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-emerald-900/30 via-emerald-900/15 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#6BE53D]/30 via-[#6BE53D]/15 to-transparent"></div>
       </div>
     </section>
   );
