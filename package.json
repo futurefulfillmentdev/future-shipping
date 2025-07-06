@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docs:mcp": "context7-mcp --transport http --port 3100"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

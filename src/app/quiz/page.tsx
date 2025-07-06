@@ -267,6 +267,13 @@ export default function QuizPage() {
     
     // Save converted data to localStorage
     localStorage.setItem('quizAnswers', JSON.stringify(formAnswers));
+
+    // Fire-and-forget push to server-side API to sync with GoHighLevel
+    fetch('/api/highlevel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formAnswers)
+    }).catch((err) => console.error('HighLevel sync failed', err));
     
     // Show processing animation for 4.5 seconds (slower), then confetti, then navigate
     setTimeout(() => {
@@ -348,7 +355,12 @@ export default function QuizPage() {
     "3PL in Australia": <Warehouse className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
     "3PL in China": <Warehouse className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
     Dropshipping: <Truck className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
-    "<$5": <DollarSign className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />, // etc.
+    "<$5": <DollarSign className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
+    "$5-$10": <DollarSign className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
+    "$10-$15": <DollarSign className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
+    "$15-$20": <DollarSign className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
+    "> $20": <DollarSign className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
+    ">$20": <DollarSign className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
   };
 
   const renderChoiceStep = (step: ChoiceStep) => {
@@ -570,28 +582,7 @@ export default function QuizPage() {
             </div>
           ))}
           
-          {/* Elegant rising sparkles */}
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={`sparkle-${i}`}
-              className="absolute animate-float"
-              style={{
-                left: `${20 + Math.random() * 60}%`,
-                bottom: `${Math.random() * 20}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${4 + Math.random() * 2}s`
-              }}
-            >
-              <svg 
-                className="w-3 h-3 text-[#6BE53D] animate-pulse opacity-70"
-                fill="currentColor" 
-                viewBox="0 0 24 24"
-                style={{ animationDelay: `${Math.random() * 1}s` }}
-              >
-                <path d="M12 0l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-3.01L12 0z"/>
-              </svg>
-            </div>
-          ))}
+          {/* Decorative extras removed for cleaner look */}
           
           {/* Radial success glow */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-[#6BE53D]/10 via-[#6BE53D]/5 to-transparent rounded-full animate-pulse"></div>
@@ -616,17 +607,7 @@ export default function QuizPage() {
                     <div className="absolute inset-0 rounded-full border border-teal-400/30 animate-ping" style={{ animationDelay: '0.6s' }}></div>
                   </div>
                   
-                  {/* Elegant rotating success rays */}
-                  <div className="absolute inset-0 w-32 h-32 -top-4 -left-4 animate-spin" style={{ animationDuration: '8s' }}>
-                    <div className="w-1 h-6 rounded-full absolute top-0 left-1/2 transform -translate-x-1/2 opacity-40" style={{ backgroundColor: '#6BE53D' }}></div>
-                    <div className="w-1 h-6 rounded-full absolute bottom-0 left-1/2 transform -translate-x-1/2 opacity-40" style={{ backgroundColor: '#6BE53D' }}></div>
-                    <div className="w-6 h-1 rounded-full absolute left-0 top-1/2 transform -translate-y-1/2 opacity-40" style={{ backgroundColor: '#6BE53D' }}></div>
-                    <div className="w-6 h-1 rounded-full absolute right-0 top-1/2 transform -translate-y-1/2 opacity-40" style={{ backgroundColor: '#6BE53D' }}></div>
-                    <div className="w-1 h-4 rounded-full absolute top-2 right-2 transform rotate-45 opacity-30" style={{ backgroundColor: '#6BE53D' }}></div>
-                    <div className="w-1 h-4 rounded-full absolute bottom-2 left-2 transform rotate-45 opacity-30" style={{ backgroundColor: '#6BE53D' }}></div>
-                    <div className="w-1 h-4 rounded-full absolute top-2 left-2 transform -rotate-45 opacity-30" style={{ backgroundColor: '#6BE53D' }}></div>
-                    <div className="w-1 h-4 rounded-full absolute bottom-2 right-2 transform -rotate-45 opacity-30" style={{ backgroundColor: '#6BE53D' }}></div>
-                  </div>
+                  {/* Simplified glow only (rays removed) */}
                 </div>
                 
                 {/* Success Text */}

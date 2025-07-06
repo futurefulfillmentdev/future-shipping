@@ -135,11 +135,6 @@ export const Faq5 = ({
 
       {/* Animated Green Gradient Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Main animated gradient */}
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-gradient-to-tr from-[#6BE53D]/30 via-[#6BE53D]/20 to-[#6BE53D]/10 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-tl from-[#6BE53D]/25 via-[#6BE53D]/15 to-[#6BE53D]/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-gradient-to-r from-[#6BE53D]/20 via-[#6BE53D]/15 to-[#6BE53D]/10 rounded-full blur-2xl animate-drift"></div>
-        
         {/* Bottom fade */}
         <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#6BE53D]/30 via-[#6BE53D]/15 to-transparent"></div>
       </div>

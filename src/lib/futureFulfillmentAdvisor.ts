@@ -27,11 +27,16 @@ function decideFulfillmentOption(answers: QuizFormAnswers): FulfillmentDecision 
     "Under 100": 100,
     "100 – 300": 300,
     "300 – 500": 500,
-    "500 – 1 000": 1000,
+    "500 – 1 000": 800,
     "1 000 – 2 000": 2000,
     "2 000+": 2500
   };
-  const monthlyOrders = orderMapping[answers.monthly_orders_choice] || 100;
+  // Existing & new helper values
+  const monthlyOrders = orderMapping[answers.monthly_orders_choice] || 0;
+  const isFromChina = answers.current_shipping_method === "3PL in China";
+  const isGlobalFocus = answers.customer_location_choice?.includes("international");
+  const skuCount = parseSkuCount(answers);
+  const fastDeliveryExpect = (answers.delivery_expectation_choice || "").startsWith("Same");
 
   // Extract SKU count
   const skuMapping: Record<string, number> = {
@@ -40,14 +45,14 @@ function decideFulfillmentOption(answers: QuizFormAnswers): FulfillmentDecision 
     "101-300": 300,
     "300+": 600
   };
-  const skuCount = skuMapping[answers.sku_range_choice] || 100;
+  const avgWeight = parseWeight(answers);
 
   // Check if manufacturing/shipping from China
-  const isFromChina = answers.current_shipping_method.toLowerCase().includes("china");
+  // const isFromChina = answers.current_shipping_method.toLowerCase().includes("china");
 
   // Check shipping destination focus
-  const isGlobalFocus = answers.customer_location_choice.includes("international") && 
-                       !answers.customer_location_choice.includes("Mostly AU");
+  // const isGlobalFocus = answers.customer_location_choice.includes("international") && 
+  //                      !answers.customer_location_choice.includes("Mostly AU");
 
   // Extract weight for China 3PL consideration
   const weightMapping: Record<string, number> = {
@@ -57,49 +62,37 @@ function decideFulfillmentOption(answers: QuizFormAnswers): FulfillmentDecision 
     "2 kg – 5 kg": 3.5,
     "Over 5 kg": 6.0
   };
-  const avgWeight = weightMapping[answers.package_weight_choice] || 1.5;
+  // const avgWeight = weightMapping[answers.package_weight_choice] || 1.5;
 
   // Primary decision logic from logic.md
   
-  // 1. Under 500 orders = DIY
+  // DIY threshold
   if (monthlyOrders < 500) {
     return "DIY";
   }
 
-  // 2. 500-2000 orders
-  if (monthlyOrders >= 500 && monthlyOrders <= 2000) {
-    // If global focus or from China, consider China 3PL
-    if (isGlobalFocus || isFromChina) {
-      // But if over 5kg, recommend local fulfillment
-      if (avgWeight > 5) {
-        return "AUS_3PL";
-      }
-      return "CHINA_3PL";
-    }
-    // Otherwise AUS 3PL
+  // If manufacturing in China or explicitly global focus → China 3PL
+  if (isFromChina || (isGlobalFocus && monthlyOrders >= 500)) {
+    return "CHINA_3PL";
+  }
+
+  // Fast delivery expectation (<2 days) should push to multi-state where possible
+  if (fastDeliveryExpect && monthlyOrders >= 500 && !isGlobalFocus) {
+    return skuCount > 500 ? "AUS_3PL" : "AUS_MULTI";
+  }
+
+  // 500–2000 orders, AUS-centric
+  if (monthlyOrders >= 500 && monthlyOrders < 2000 && !isGlobalFocus) {
     return "AUS_3PL";
   }
 
-  // 3. Over 2000 orders
-  if (monthlyOrders > 2000) {
-    // If over 500 SKUs, stay in 1 warehouse (too complex to split)
-    if (skuCount > 500) {
-      if (isGlobalFocus || isFromChina) {
-        return "CHINA_3PL";
-      } else {
-        return "AUS_3PL";
-      }
-    }
-    
-    // Multi-state for high volume AUS-focused
-    if (!isGlobalFocus && !isFromChina) {
-      return "AUS_MULTI";
-    } else {
-      return "CHINA_3PL";
-    }
+  // ≥2000 orders, AUS focus – but respect SKU complexity
+  if (monthlyOrders >= 2000 && !isGlobalFocus) {
+    return skuCount > 500 ? "AUS_3PL" : "AUS_MULTI";
   }
 
-  return "AUS_3PL"; // Default fallback
+  // Fallback
+  return "AUS_3PL";
 }
 
 // Calculate savings based on logic.md pricing
@@ -112,7 +105,7 @@ function calculateSavings(decision: FulfillmentDecision, answers: QuizFormAnswer
     "Under 100": 100,
     "100 – 300": 300,
     "300 – 500": 500,
-    "500 – 1 000": 1000,
+    "500 – 1 000": 800,
     "1 000 – 2 000": 2000,
     "2 000+": 2500
   };
@@ -122,30 +115,26 @@ function calculateSavings(decision: FulfillmentDecision, answers: QuizFormAnswer
 
   switch (decision) {
     case "DIY":
-      savingsPerOrder = 2; // Up to $2 saved per order with OMS tools
+      savingsPerOrder = 0.5; // Up to $0.50 saved per order with OMS tools
       break;
-      
+    
     case "AUS_3PL":
-      if (monthlyOrders >= 500 && monthlyOrders <= 2000) {
-        savingsPerOrder = 3; // $3 per order for 500-2000 range
-      } else {
-        savingsPerOrder = 3;
-      }
+      savingsPerOrder = 1; // $1 per order for AUS 3PL
       break;
       
     case "AUS_MULTI":
-      savingsPerOrder = 4; // $4 per order for 2000+ multi-state
+      savingsPerOrder = 2; // $2 per order for multi-state
       break;
       
     case "CHINA_3PL":
-      // Weight-based savings from logic.md
-      const weight = answers.package_weight_choice;
-      if (weight.includes("Under 0.5") || weight.includes("0.5 kg – 1 kg")) {
-        savingsPerOrder = 8; // Up to $8 for <1kg
-      } else if (weight.includes("1 kg – 2 kg")) {
-        savingsPerOrder = 5; // Up to $5 for 1-2kg
+      // Weight-based savings tiers per client notes
+      const weight = answers.package_weight_choice || "";
+      if (weight.includes("Under 0.5") || weight.includes("0.5 kg")) {
+        savingsPerOrder = 8;
+      } else if (weight.includes("1 kg") || weight.includes("1 kg – 2 kg")) {
+        savingsPerOrder = 5;
       } else {
-        savingsPerOrder = 4; // Up to $4 for >2kg
+        savingsPerOrder = 4;
       }
       break;
   }
@@ -169,16 +158,15 @@ function getResultContent(decision: FulfillmentDecision, firstname: string, savi
       return {
         ...baseContent,
         title: "You're Best Off Shipping Orders Yourself (For Now)",
-        description: `At your current volume, in-house fulfillment is the smartest move. You're likely doing under 500 orders/month and don't yet need the cost or complexity of a 3PL.
-But with a few smart upgrades, you can dramatically reduce time and wasted spend:`,
+        description: `At your current volume, using a 3PL would add unnecessary cost and complexity.\nIf you're shipping under 500 orders/month, in-house fulfillment is your smartest move right now.\n\nThat said, a few simple upgrades can help you save time and cut costs:`,
         benefits: [
-          "Use Starshipit, Shippit, or ShipStation to automate label generation and carrier routing",
-          "Get a label printer and satchels from your local supplier", 
+          "Use Starshipit, Shippit, or ShipStation to automate labels and access cheaper rates",
+          "Get a label printer and satchels from a local supplier", 
           "Tighten your packaging to reduce cubic weight and avoid carrier penalties",
-          "Start tracking your cost-per-order and fulfillment time"
+          "Start tracking your cost-per-order and fulfilment time"
         ],
         ctaTitle: "🎁 Get Our Free Fulfillment Toolkit",
-        ctaText: "Learn how to reduce your workload and improve margins with our curated DIY playbook.",
+        ctaText: "Streamline your process and improve your margins with our proven DIY setup guide.",
         ctaUrl: "https://j63rzjzdahixjfu3foqc.app.clientclub.net/communities/groups/ecommerce-insiders-academy/home?invite=67b1bb500ca4a3bf1bba9912",
         note: "(Just by switching to OMS tools and optimizing packaging)"
       };
@@ -186,14 +174,13 @@ But with a few smart upgrades, you can dramatically reduce time and wasted spend
     case "AUS_3PL":
       return {
         ...baseContent,
-        title: "Based on Your Results, Future is the Best 3PL Fit for You",
-        description: `Our AI compared 50+ fulfillment providers and Future Fulfillment is your optimal match. You're moving past 500+ orders/month — which means DIY fulfillment is capping your growth and profits.
-Switching to Future Fulfillment will give you:`,
+        title: "You’re Ready to Scale with a 3PL in Australia",
+        description: `You’ve Outgrown DIY Fulfillment. It’s Time to Outsource and Reclaim Your Time.\n\nWith 500+ orders/month, packing orders yourself is capping your growth.\nA dedicated Future Fulfillment warehouse will help you scale — without losing control of the customer experience.\n\nHere’s what you get:`,
         benefits: [
-          "Discounted shipping rates via AusPost & CouriersPlease",
-          "Barcode-based inventory, returns management, and live order tracking",
-          "Reclaimed time to focus on marketing, growth, and ops",
-          "Same costs every month — no more surprises"
+          "Discounted rates via AusPost and other leading carriers",
+          "Barcode-based inventory, returns management & live tracking",
+          "Hours back in your week to focus on marketing, growth, and ops",
+          "We help you maintain your brand — with custom packaging, eco-options, gift wrapping, and thoughtful inserts"
         ],
         ctaTitle: "📞 Book Your Free Fulfillment Strategy Call",
         ctaText: "We'll show you how to transition smoothly and start saving within days.",
@@ -204,32 +191,30 @@ Switching to Future Fulfillment will give you:`,
     case "AUS_MULTI":
       return {
         ...baseContent,
-        title: "Based on Your Results, Future is the Best 3PL Fit for You", 
-        description: `Our AI compared 50+ fulfillment providers and Future Fulfillment is your optimal match. With 2,000+ orders/month across multiple states, central fulfillment is no longer optimal.
-Future Fulfillment's VIC, NSW, and QLD locations give you:`,
+        title: "You’re Ready for Multi-Warehouse Fulfillment in Australia",
+        description: `With 2,000+ orders/month shipping across multiple states, central fulfillment is slowing you down and costing you more.\n\nHere’s what you unlock with Future Fulfillment’s VIC, NSW, and QLD warehouses:`,
         benefits: [
-          "Delivery up to 50% faster, with 30% lower cross-state shipping costs",
-          "The ability to serve customers same-day or next-day",
-          "Inventory redundancy and smoother replenishment cycles",
-          "Better customer reviews and lower refund rates"
+          "Faster delivery — same-day and next-day shipping in key regions",
+          "Lower shipping costs — save up to 30% on cross-state orders",
+          "Smarter inventory management — spread stock and reduce delays",
+          "Better customer experience — fewer complaints, faster replacements, higher reviews"
         ],
         ctaTitle: "📞 Book Your Free Fulfillment Strategy Call",
         ctaText: "We'll map your inventory and show you exactly how much you'll save.",
         ctaUrl: "https://futurefulfilment.com/ausnz#section-0XX8Pbq9ZQ",
-        note: null
+        note: "(From reduced shipping fees and faster delivery)"
       };
 
     case "CHINA_3PL":
       return {
         ...baseContent,
-        title: "Based on Your Results, Future is the Best 3PL Fit for You",
-        description: `Our AI compared 50+ fulfillment providers and Future Fulfillment is your optimal match. With your global customer base and manufacturing in China, our China 3PL gives you:`,
+        title: "China-Based Fulfillment Is Your Most Profitable Path",
+        description: `You’re manufacturing in China and shipping globally — it’s time to fulfill direct from the source.\n\nHere’s what you get:`,
         benefits: [
-          "Specialized shipping lines to over 75 countries",
-          "Apparel, battery, sensitive, and cosmetic product lines",
-          "Express delivery options (3-6 days average)",
-          "Premium quality control and branded packaging",
-          "Compliance with dangerous goods transport"
+          "$1 warehouse fees and global shipping from as low as $5 per order",
+          "Fast delivery to the US, UK, EU, and more — via optimized global lines",
+          "Full product handling — QC, polybagging, swing tags, labelling & inserts",
+          "Access to 5+ dedicated line types for apparel, batteries, cosmetics, express, and sensitive goods"
         ],
         ctaTitle: "📞 Book Your Free Fulfillment Strategy Call", 
         ctaText: "We'll show you how to optimize your global shipping strategy.",

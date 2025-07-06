@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { MessageSquare, Brain, FileText } from 'lucide-react';
+import { MessageSquare, Brain, FileText, Check } from 'lucide-react';
 import Link from 'next/link';
 import EarthAnimation from '@/components/EarthAnimation';
 import { GradientCard } from '@/components/ui/gradient-card';
@@ -74,7 +74,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none z-10" />
           
           {/* Content */}
-          <div className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-16 sm:pt-8">
+          <div className="relative z-20 text-center px-4 max-w-5xl mx-auto pt-16 sm:pt-8">
             {/* Badge */}
           <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -101,13 +101,9 @@ export default function Home() {
                 ease: [0.23, 1, 0.32, 1],
                 delay: 2.4
               }}
-              className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-6 sm:mb-8 leading-tight"
+              className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 sm:mb-8 leading-tight"
             >
-              Find Your{' '}
-              <span className="bg-gradient-to-r from-[#6BE53D] to-[#4ADE80] bg-clip-text text-transparent">
-                Perfect
-              </span>{' '}
-              3PL
+              This Free "Shipping Cost Analyzer" Will Find Your Cheapest Fulfillment Option & Save You $1000s Per Month
             </motion.h1>
 
             {/* Subtitle */}
@@ -121,16 +117,8 @@ export default function Home() {
               }}
               className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-[#6BE53D] mb-4 sm:mb-6 leading-relaxed"
             >
-              AI compares 50+ providers to find your{' '}
-              <span className="font-bold">perfect match</span>
+              We analyzed 1,000+ eCommerce brands across Australia & China to create an AI that instantly finds the most cost-effective shipping strategy for YOUR specific business
             </motion.p>
-            
-            {/* Description with Word-by-Word Animation */}
-            <div className="text-sm sm:text-base md:text-lg text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed">
-              <AnimatedText delay={3.5}>
-                Compare costs, speed, and reliability across Australia's top 3PLs, China fulfillment centers, and DIY shipping solutions in just 3 minutes
-              </AnimatedText>
-            </div>
             
             {/* CTA Button */}
           <motion.div
@@ -145,8 +133,8 @@ export default function Home() {
             >
               <Link href="/quiz">
                 <button className="liquid-button text-white font-semibold text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full">
-                  <span className="sm:hidden">Get Started</span>
-                  <span className="hidden sm:inline">Compare Fulfillment Options FREE →</span>
+                  <span className="sm:hidden">Get My FREE Shipping Strategy in 3 Minutes</span>
+                  <span className="hidden sm:inline">Get My FREE Shipping Strategy in 3 Minutes</span>
                 </button>
               </Link>
               <div className="sm:hidden mt-2">
@@ -247,7 +235,7 @@ export default function Home() {
             className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight"
           >
             Get Your Complete Shipping Strategy That can Save{' '}
-            <span className="bg-gradient-to-r from-[#6BE53D] to-teal-400 bg-clip-text text-transparent">
+            <span className="text-[#6BE53D]">
                 30-50%
             </span>{' '}
               on Fulfillment Costs
@@ -295,11 +283,9 @@ export default function Home() {
                   }}
                   className="flex items-start gap-4 text-left group"
                 >
-                  {/* Checkmark */}
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-[#6BE53D] to-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
+                  {/* Checkmark (FAQ-style) */}
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#6BE53D]/20 border border-[#6BE53D]/30 flex items-center justify-center group-hover:bg-[#6BE53D]/30 transition-colors duration-300">
+                    <Check className="w-4 h-4 text-[#6BE53D]" strokeWidth={3} />
                   </div>
                   
                   {/* Content */}
