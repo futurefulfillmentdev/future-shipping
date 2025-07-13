@@ -36,9 +36,8 @@ export default function Globe3D() {
           <h1 className="mx-auto mb-6 max-w-4xl text-4xl md:text-5xl lg:text-7xl font-light">
             Reduce Costs with our <span className="text-[#9b87f5]">AI-Powered</span> Shipping Insights
           </h1>
-          <p className="mx-auto mb-10 max-w-2xl text-lg text-white/70 md:text-xl">
-            Our platform merges artificial intelligence with real shipping data from 1,000+ brands so you always ship the
-            cheapest way possible.
+          <p className="mx-auto mb-10 max-w-2xl text-base text-white/70 md:text-xl lg:text-2xl leading-relaxed">
+            Our platform merges artificial intelligence with real shipping data from 1,000+ brands across the globe so you always ship the cheapest way possible.
           </p>
 
           <div className="mb-10 flex flex-col items-center justify-center gap-4 sm:flex-row">

@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+/* Critical CSS optimizations */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Add will-change for better performance */
+  --animation-duration: 0.3s;
 }
 
 @theme inline {
@@ -52,15 +55,22 @@
   }
 }
 
+/* Optimize font rendering */
 body {
   font-family: var(--font-inter), sans-serif;
+  /* Improve font rendering performance */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-jakarta), sans-serif;
+  /* Optimize heading rendering */
+  font-display: swap;
 }
 
-/* Glassmorphic & animation utilities ported from styleexample.html */
+/* Optimize animations for performance */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-20px); }
@@ -72,8 +82,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { 
+    opacity: 0; 
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulseGlow {
@@ -100,6 +116,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Optimize glass morphism for better performance */
 .glass-morphism {
   position: relative;
   background: rgba(24, 24, 27, 0.45);
@@ -107,9 +124,11 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
   overflow: hidden;
+  /* Optimize for animations */
+  will-change: transform, opacity;
 }
 
-/* container shimmer overlay - apply with .container-shimmer class */
+/* Optimize container shimmer */
 .container-shimmer::before {
   content: "";
   position: absolute;
@@ -119,6 +138,7 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateX(-100%);
   pointer-events: none;
   animation: container-shimmer 12s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes container-shimmer {
@@ -127,13 +147,15 @@ h1, h2, h3, h4, h5, h6 {
   100% { transform: translateX(100%); }
 }
 
+/* Optimize button performance */
 .liquid-button {
   background-image: linear-gradient(to right, #6BE53D, #57c433);
   color: #fff;
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 25px rgba(107, 229, 61, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); /* Reduced from 0.4s */
+  will-change: transform, box-shadow;
 }
 
 .liquid-button:hover {
@@ -142,11 +164,13 @@ h1, h2, h3, h4, h5, h6 {
   filter: brightness(1.1);
 }
 
+/* Optimize icon containers */
 .icon-container {
   background: rgba(107, 229, 61, 0.1);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(107, 229, 61, 0.2);
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform, box-shadow;
 }
 
 .icon-container:hover {
@@ -155,9 +179,11 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(107, 229, 61, 0.15);
 }
 
+/* Optimize page transitions */
 .page { display: none; }
 .page.active { display: block; }
 
+/* Optimize input containers */
 .input-container {
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(12px);
@@ -165,6 +191,7 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 16px;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform, box-shadow;
 }
 
 .input-container:hover {
@@ -180,58 +207,71 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .input-container input {
-  background-color: transparent !important;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  width: 100%;
+  transition: all 0.3s ease;
 }
 
 .option-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  transform: perspective(800px) rotateX(0) rotateY(0);
-  background: rgba(255, 255, 255, 0.05);
+  will-change: transform, box-shadow;
 }
 
 .option-card:hover {
-  transform: perspective(800px) rotateX(2deg) rotateY(2deg) translateY(-5px);
-  box-shadow: 0 18px 40px rgba(107, 229, 61, 0.25);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(107, 229, 61, 0.15);
 }
 
 .option-card.selected {
-  background: rgba(107, 229, 61, 0.12);
-  border-color: rgba(107, 229, 61, 0.5);
+  background: rgba(107, 229, 61, 0.1);
+  box-shadow: 0 0 0 1px rgba(107, 229, 61, 0.5) inset, 0 8px 24px rgba(107, 229, 61, 0.2);
 }
 
 .concentric-circle {
-  background: radial-gradient(
-    circle at center,
-    rgba(107, 229, 61, 0.05) 0%,
-    rgba(107, 229, 61, 0.02) 20%,
-    rgba(107, 229, 61, 0.01) 40%,
-    transparent 60%
-  );
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(107, 229, 61, 0.3), rgba(107, 229, 61, 0.1));
+  opacity: 0.8;
+  animation: pulse-slow 3s infinite;
 }
 
+/* Optimize animations */
 .animate-slideIn {
-  animation: slideIn 0.6s ease-out forwards;
+  animation: slideIn 0.3s ease-out;
 }
+
 .animate-float {
-  animation: float 6s ease-in-out infinite;
+  animation: float 3s ease-in-out infinite;
 }
+
 .animate-fadeIn {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn 0.8s ease-out;
 }
+
 .animate-pulseGlow {
   animation: pulseGlow 2s ease-in-out infinite alternate;
 }
+
 .animate-step {
-  animation: stepIn 0.8s ease-out both;
-}
-.animate-marquee {
-  animation: marquee var(--duration) linear infinite;
-}
-.animate-pulse-border {
-  animation: pulse-border 3s ease-in-out infinite;
+  animation: stepIn 0.3s ease-out;
 }
 
-/* motion gradient background */
+.animate-marquee {
+  animation: marquee 15s linear infinite;
+}
+
+.animate-pulse-border {
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+/* Optimize background animations */
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -239,158 +279,156 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .bg-motion {
-  background: radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.12), transparent 60%), radial-gradient(circle at 80% 80%, rgba(20, 184, 166, 0.12), transparent 60%);
-  background-size: 200% 200%;
-  animation: gradientShift 18s ease-in-out infinite;
+  background: linear-gradient(-45deg, #6BE53D, #57c433, #4dd24e, #3bc95b);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  opacity: 0.8;
 }
 
-/* starfield background */
 .bg-starfield {
-  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size: 3px 3px;
-  opacity: 0.04;
+  background-image: radial-gradient(2px 2px at 20px 30px, rgba(107, 229, 61, 0.3), transparent),
+                    radial-gradient(2px 2px at 40px 70px, rgba(107, 229, 61, 0.2), transparent);
+  background-repeat: repeat;
+  background-size: 100px 100px;
+  opacity: 0.6;
 }
 
-/* bottom glow */
 .bg-bottom-glow::after {
-  content: "";
+  content: '';
   position: absolute;
-  bottom: -14rem;
-  left: 50%;
-  width: 120%;
-  height: 45rem;
-  transform: translateX(-50%);
-  background: radial-gradient(circle at center top, rgba(16, 185, 129, 0.28), transparent 75%);
-  filter: blur(80px);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: radial-gradient(ellipse at center bottom, rgba(107, 229, 61, 0.15) 0%, transparent 70%);
   pointer-events: none;
-  z-index: -1;
 }
 
-/* Top starry overlay */
 .bg-top-stars::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 50vh;
-  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size: 3px 3px;
-  opacity: 0.05;
+  right: 0;
+  height: 300px;
+  background: radial-gradient(ellipse at center top, rgba(107, 229, 61, 0.08) 0%, transparent 60%);
   pointer-events: none;
 }
 
-/* progress bar track */
 .glass-track {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 
-/* neutralise browser autofill */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px rgba(0,0,0,0.4) inset !important;
-  -webkit-text-fill-color: #fff !important;
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.04) inset;
 }
 
 input[type="email"],
-input[type="email"]:focus {
-  background-color: transparent !important;
+input[type="text"],
+input[type="url"] {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
 }
 
-/* Neumorphic button hover glow */
 .neumorphic-button::after {
-  content: "";
-  @apply absolute inset-0 opacity-0 transition-opacity duration-300 bg-gradient-to-br from-[#9b87f5]/20 to-transparent rounded-full;
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .neumorphic-button:hover::after {
-  @apply opacity-100;
+  opacity: 1;
 }
 
-/* Green gradient animations */
 @keyframes pulse-slow {
-  0%, 100% { 
-    opacity: 0.3;
+  0%, 100% {
     transform: scale(1);
+    opacity: 1;
   }
-  50% { 
-    opacity: 0.6;
-    transform: scale(1.1);
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
   }
 }
 
 @keyframes drift {
-  0%, 100% { 
-    transform: translateX(-50%) translateY(0px);
+  0% {
+    transform: rotate(0deg);
   }
-  33% { 
-    transform: translateX(-30%) translateY(-20px);
-  }
-  66% { 
-    transform: translateX(-70%) translateY(-10px);
+  100% {
+    transform: rotate(360deg);
   }
 }
 
 .animate-pulse-slow {
-  animation: pulse-slow 8s ease-in-out infinite;
+  animation: pulse-slow 4s ease-in-out infinite;
 }
 
 .animate-drift {
-  animation: drift 12s ease-in-out infinite;
+  animation: drift 20s linear infinite;
 }
 
-/* Animation delay utilities for processing screen */
+/* Animation delay utilities */
 .animation-delay-500 {
-  animation-delay: 0.5s;
+  animation-delay: 500ms;
 }
 
 .animation-delay-1000 {
-  animation-delay: 1s;
+  animation-delay: 1000ms;
 }
 
 .animation-delay-1500 {
-  animation-delay: 1.5s;
+  animation-delay: 1500ms;
 }
 
 .animation-delay-2000 {
-  animation-delay: 2s;
+  animation-delay: 2000ms;
 }
 
-/* Radial gradient utility */
+/* Utility classes */
 .bg-gradient-radial {
   background: radial-gradient(circle, var(--tw-gradient-stops));
 }
 
-/* Safe area utilities for mobile devices */
 .pt-safe-top {
-  padding-top: env(safe-area-inset-top, 1rem);
+  padding-top: env(safe-area-inset-top);
 }
 
 .pb-safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 1rem);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-@layer base {
+/* Mobile optimizations */
+@media (max-width: 768px) {
   * {
-    @apply border-border outline-ring/50;
+    -webkit-tap-highlight-color: transparent;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    font-size: 16px; /* Prevent zoom on iOS */
   }
 }
 
-/* Enhanced hover effects for quiz components */
 .option-card:hover .icon-container {
-  background: rgba(107, 229, 61, 0.2);
-  border-color: rgba(107, 229, 61, 0.4);
+  transform: translateY(-1px) scale(1.1);
+  box-shadow: 0 8px 16px rgba(107, 229, 61, 0.25);
 }
 
 .option-card.selected .icon-container {
-  background: rgba(107, 229, 61, 0.25);
-  border-color: rgba(107, 229, 61, 0.6);
-  box-shadow: 0 0 20px rgba(107, 229, 61, 0.3);
+  background: rgba(107, 229, 61, 0.2);
+  box-shadow: 0 0 0 1px rgba(107, 229, 61, 0.5) inset, 0 8px 16px rgba(107, 229, 61, 0.3);
 }
 
 /* Enhanced shadow utilities */
@@ -398,22 +436,21 @@ input[type="email"]:focus {
   box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
 }
 
-/* Smooth transitions for all interactive elements */
+/* Accessibility improvements */
 * {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  scroll-behavior: smooth;
 }
 
-/* Enhanced button hover states */
+/* Improved focus states */
 button:not(:disabled):hover {
-  cursor: pointer;
+  transform: translateY(-1px);
 }
 
 button:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Clean focus states without color */
 input:focus {
   outline: none;
 }
@@ -423,8 +460,229 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-/* Enhanced glass morphism hover state */
+/* Improved glass morphism hover */
 .glass-morphism:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(24px);
+  background: rgba(24, 24, 27, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+/* Custom Phone Input Styles */
+.phone-input-container {
+  position: relative;
+}
+
+/* Override react-phone-number-input default styles */
+.phone-input-custom {
+  --PhoneInput-color--focus: #6BE53D;
+  --PhoneInputCountryFlag-height: 1.5em;
+  --PhoneInputCountryFlag-borderColor: rgba(255, 255, 255, 0.2);
+  --PhoneInputCountrySelectArrow-color: #6BE53D;
+  --PhoneInputCountrySelectArrow-opacity: 0.8;
+}
+
+.phone-input-custom .PhoneInput {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid transparent;
+  border-radius: 16px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform, box-shadow;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  min-height: 60px;
+}
+
+.phone-input-custom .PhoneInput:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset, 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.phone-input-custom .PhoneInput--focus {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(107, 229, 61, 0.5) inset, 0 8px 24px rgba(0, 0, 0, 0.5);
+  border-color: rgba(107, 229, 61, 0.3);
+}
+
+.phone-input-custom .PhoneInputCountrySelect {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 0 8px 0 0;
+  margin-right: 12px;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.phone-input-custom .PhoneInputCountrySelect:hover {
+  color: #6BE53D;
+}
+
+.phone-input-custom .PhoneInputCountrySelect:focus {
+  color: #6BE53D;
+}
+
+.phone-input-custom .PhoneInputCountrySelectArrow {
+  color: #6BE53D;
+  margin-left: 8px;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.phone-input-custom .PhoneInputCountrySelect:hover .PhoneInputCountrySelectArrow {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.phone-input-custom .PhoneInputInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  transition: all 0.3s ease;
+}
+
+.phone-input-custom .PhoneInputInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.phone-input-custom .PhoneInputInput:focus::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.phone-input-custom .PhoneInputCountryFlag {
+  width: 1.5em;
+  height: 1.5em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  margin-right: 8px;
+  transition: all 0.3s ease;
+}
+
+.phone-input-custom .PhoneInputCountrySelect:hover .PhoneInputCountryFlag {
+  border-color: rgba(107, 229, 61, 0.5);
+  transform: scale(1.05);
+}
+
+/* Country dropdown styles - floating and non-disruptive */
+.phone-input-custom .PhoneInputCountrySelect .PhoneInputCountrySelectDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  margin-top: 8px;
+  background: rgba(24, 24, 27, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  max-height: 200px;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.phone-input-custom .PhoneInputCountrySelect .PhoneInputCountrySelectDropdown .PhoneInputCountrySelectOption {
+  padding: 12px 16px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.phone-input-custom .PhoneInputCountrySelect .PhoneInputCountrySelectDropdown .PhoneInputCountrySelectOption:hover {
+  background: rgba(107, 229, 61, 0.1);
+  color: #6BE53D;
+}
+
+.phone-input-custom .PhoneInputCountrySelect .PhoneInputCountrySelectDropdown .PhoneInputCountrySelectOption:focus {
+  background: rgba(107, 229, 61, 0.15);
+  color: #6BE53D;
+  outline: none;
+}
+
+.phone-input-custom .PhoneInputCountrySelect .PhoneInputCountrySelectDropdown .PhoneInputCountrySelectOption .PhoneInputCountryFlag {
+  margin-right: 0;
+}
+
+.phone-input-custom .PhoneInputCountrySelect .PhoneInputCountrySelectDropdown .PhoneInputCountrySelectOption .PhoneInputCountrySelectOptionLabel {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Enhanced confetti animation */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.confetti-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: confetti-burst 4s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes confetti-burst {
+  0% {
+    transform: translateY(-20vh) translateX(0) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(-10vh) translateX(0) rotate(45deg) scale(1);
+  }
+  20% {
+    transform: translateY(0vh) translateX(var(--random-x, 0)) rotate(90deg) scale(1);
+  }
+  100% {
+    transform: translateY(120vh) translateX(var(--random-x, 0)) rotate(720deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Burst effect for confetti particles */
+.confetti-particle:nth-child(odd) {
+  animation-delay: 0s;
+}
+
+.confetti-particle:nth-child(even) {
+  animation-delay: 0.1s;
+}
+
+.confetti-particle:nth-child(3n) {
+  animation-delay: 0.2s;
+}
+
+.confetti-particle:nth-child(4n) {
+  animation-delay: 0.3s;
+}
+
+.confetti-particle:nth-child(5n) {
+  animation-delay: 0.4s;
 }

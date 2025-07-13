@@ -1,16 +1,17 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageSquare, Brain, FileText, Check } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import EarthAnimation from '@/components/EarthAnimation';
 import { GradientCard } from '@/components/ui/gradient-card';
 import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee';
 import { CTASection } from '@/components/ui/cta-with-rectangle';
 import { Faq5 } from '@/components/ui/faq-5';
 
-// Word-by-word animation component
+// Optimized word-by-word animation component
 const AnimatedText = ({ children, delay = 0 }: { children: string; delay?: number }) => {
   const words = children.split(' ');
   
@@ -21,18 +22,16 @@ const AnimatedText = ({ children, delay = 0 }: { children: string; delay?: numbe
           key={index}
           initial={{ 
             opacity: 0, 
-            filter: 'blur(10px)',
-            y: 20
+            y: 10 // Reduced from 20 for faster animation
           }}
           animate={{ 
             opacity: 1, 
-            filter: 'blur(0px)',
             y: 0
           }}
           transition={{
-            duration: 0.6,
+            duration: 0.4, // Reduced from 0.6 for faster animation
             ease: [0.23, 1, 0.32, 1],
-            delay: delay + (index * 0.1)
+            delay: delay + (index * 0.05) // Reduced from 0.1 for faster sequence
           }}
           className="inline-block mr-2"
         >
@@ -43,91 +42,110 @@ const AnimatedText = ({ children, delay = 0 }: { children: string; delay?: numbe
   );
 };
 
-
-
 export default function Home() {
-  const [, setGlobeReady] = useState(false);
+  const [globeReady, setGlobeReady] = useState(false);
 
   const handleGlobeReady = () => {
     setGlobeReady(true);
   };
 
-  // Auto-trigger after a delay as fallback
-  useState(() => {
+  // Faster fallback trigger
+  useEffect(() => {
     const timer = setTimeout(() => {
       setGlobeReady(true);
-    }, 1000);
+    }, 500); // Reduced from 1000ms for faster fallback
     return () => clearTimeout(timer);
-  });
+  }, []);
 
   return (
     <>
-      <main className="min-h-screen bg-slate-900 bg-motion bg-bottom-glow bg-top-stars relative overflow-hidden">
+      <main className="min-h-screen bg-black relative overflow-hidden">
         <div className="relative min-h-screen flex items-center justify-center pt-safe-top">
           {/* Simple Gradient Overlay from Top */}
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#6BE53D]/20 via-transparent to-transparent pointer-events-none z-5"></div>
 
-          {/* Earth Animation - Full Hero Background */}
+          {/* Earth Animation - Lazy loaded */}
           <EarthAnimation onGlobeReady={handleGlobeReady} />
           
           {/* Bottom Black Gradient for Page Transition */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none z-10" />
           
-          {/* Content */}
+          {/* Content - Start showing immediately */}
           <div className="relative z-20 text-center px-4 max-w-5xl mx-auto pt-16 sm:pt-8">
-            {/* Badge */}
-          <motion.div
-              initial={{ opacity: 0, y: 20 }}
+            {/* Logo - Show first */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ 
                 duration: 0.8, 
                 ease: [0.23, 1, 0.32, 1],
-                delay: 0.5
+                delay: 0.05
+              }}
+              className="mb-8 sm:mb-10"
+            >
+              <Image 
+                src="/future-logo-white.svg" 
+                alt="Future Fulfillment" 
+                width={200} 
+                height={46}
+                className="h-10 sm:h-12 w-auto mx-auto" 
+                priority
+              />
+            </motion.div>
+
+            {/* Badge - Show immediately */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.6, 
+                ease: [0.23, 1, 0.32, 1],
+                delay: 0.1 // Reduced from 0.5
               }}
               className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full glass-morphism mb-6 sm:mb-8"
             >
               <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#6BE53D' }}></div>
               <span className="text-xs sm:text-sm font-medium" style={{ color: '#6BE53D' }}>
-            AI Compares the Market for eCommerce Fulfillment
+                AI Compares the Market for eCommerce Fulfillment
               </span>
-          </motion.div>
+            </motion.div>
 
-            {/* Main Headline */}
+            {/* Main Headline - Show faster */}
             <motion.h1
-              initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ 
-                duration: 0.8, 
+                duration: 0.6, 
                 ease: [0.23, 1, 0.32, 1],
-                delay: 2.4
+                delay: 0.3 // Reduced from 2.4
               }}
               className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 sm:mb-8 leading-tight"
             >
               This Free "Shipping Cost Analyzer" Will Find Your Cheapest Fulfillment Option & Save You $1000s Per Month
             </motion.h1>
 
-            {/* Subtitle */}
+            {/* Subtitle - Show faster */}
             <motion.p
-              initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ 
-                duration: 0.8, 
+                duration: 0.6, 
                 ease: [0.23, 1, 0.32, 1],
-                delay: 3.2
+                delay: 0.5 // Reduced from 3.2
               }}
               className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-[#6BE53D] mb-4 sm:mb-6 leading-relaxed"
             >
-              We analyzed 1,000+ eCommerce brands across Australia & China to create an AI that instantly finds the most cost-effective shipping strategy for YOUR specific business
+              We analyzed 1,000+ eCommerce brands across the globe to create an AI that instantly finds the most cost-effective shipping strategy for YOUR specific business
             </motion.p>
             
-            {/* CTA Button */}
-          <motion.div
-              initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            {/* CTA Button - Show faster */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ 
-                duration: 0.8, 
+                duration: 0.6, 
                 ease: [0.23, 1, 0.32, 1],
-                delay: 4.8
+                delay: 0.7 // Reduced from 4.8
               }}
               className="mb-12 sm:mb-16"
             >
@@ -140,32 +158,32 @@ export default function Home() {
               <div className="sm:hidden mt-2">
                 <span className="text-xs font-normal" style={{ color: '#6BE53D' }}>100% Free</span>
               </div>
-          </motion.div>
+            </motion.div>
           
-            {/* Trust Indicators */}
-              <motion.div
+            {/* Trust Indicators - Show faster */}
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ 
-                duration: 0.8, 
+                duration: 0.6, 
                 ease: [0.23, 1, 0.32, 1],
-                delay: 5.3
+                delay: 0.9 // Reduced from 5.3
               }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400"
             >
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: '#6BE53D' }}>✓</div>
                 <span>Trusted by 500+ Australian brands</span>
-                    </div>
+              </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: '#6BE53D' }}>✓</div>
                 <span>No credit card required</span>
-                  </div>
+              </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: '#6BE53D' }}>✓</div>
                 <span>100% free analysis</span>
-                </div>
-              </motion.div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </main>

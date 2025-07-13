@@ -1,8 +1,24 @@
 "use client";
 
-import Spline from '@splinetool/react-spline';
 import { motion } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
+
+// Direct import with lazy loading via React.lazy if needed
+let Spline: any = null;
+
+// Lazy load Spline only when needed
+const loadSpline = async () => {
+  if (!Spline) {
+    try {
+      const SplineModule = await import('@splinetool/react-spline');
+      Spline = SplineModule.default;
+    } catch (error) {
+      console.error('Failed to load Spline:', error);
+      return null;
+    }
+  }
+  return Spline;
+};
 
 interface EarthAnimationProps {
   onGlobeReady?: () => void;
@@ -10,14 +26,41 @@ interface EarthAnimationProps {
 
 export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
   const splineRef = useRef<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [SplineComponent, setSplineComponent] = useState<any>(null);
+
+  // Load Spline component on mount
+  useEffect(() => {
+    loadSpline().then(SplineComp => {
+      if (SplineComp) {
+        setSplineComponent(() => SplineComp);
+      } else {
+        setHasError(true);
+        onGlobeReady?.();
+      }
+    });
+  }, [onGlobeReady]);
+
+  // Fallback trigger for text animations
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      if (!isLoaded) {
+        onGlobeReady?.();
+      }
+    }, 2000); // Fallback after 2 seconds
+
+    return () => clearTimeout(fallbackTimer);
+  }, [isLoaded, onGlobeReady]);
 
   const handleLoad = (spline: any) => {
     splineRef.current = spline;
+    setIsLoaded(true);
     
     try {
       // Check if setSpeed method exists before calling it
       if (typeof spline.setSpeed === 'function') {
-        spline.setSpeed(1.0); // Normal speed
+        spline.setSpeed(0.8); // Slightly slower for better performance
       }
       
       // Check if play method exists before calling it
@@ -28,9 +71,45 @@ export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
       console.log('Spline animation controls not available:', error);
     }
     
-    // Trigger text animations immediately
+    // Trigger text animations
     onGlobeReady?.();
   };
+
+  const handleError = (error: any) => {
+    console.error('Spline loading error:', error);
+    setHasError(true);
+    // Still trigger text animations even if 3D fails
+    onGlobeReady?.();
+  };
+
+  // Show loading spinner while Spline is loading
+  if (!SplineComponent && !hasError) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.7 }}
+        transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+        className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center"
+      >
+        <div className="w-16 h-16 border-4 border-[#6BE53D] border-t-transparent rounded-full animate-spin"></div>
+      </motion.div>
+    );
+  }
+
+  // Fallback component if Spline fails to load
+  if (hasError || !SplineComponent) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.3 }}
+        transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+        className="absolute inset-0 pointer-events-none z-0"
+      >
+        <div className="absolute inset-0 bg-gradient-radial from-[#6BE53D]/10 via-transparent to-transparent" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-conic from-[#6BE53D]/20 via-transparent to-[#6BE53D]/10 animate-spin" style={{ animationDuration: '20s' }} />
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -43,43 +122,16 @@ export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
       }}
       className="absolute inset-0 pointer-events-none z-0"
     >
-      <Spline
+      <SplineComponent
         scene="https://prod.spline.design/4rSGGXlG7TeC2F-0/scene.splinecode"
         onLoad={handleLoad}
+        onError={handleError}
         style={{
           width: '100%',
           height: '100%',
           objectFit: 'cover'
         }}
-        // ANIMATION CONTROLS:
-        // onLoad={(spline) => {
-        //   console.log('Spline loaded', spline);
-        //   // Access the Spline application instance
-        //   // spline.setZoom(1.5); // Control camera zoom
-        //   // spline.lookAt([0, 0, 0]); // Control camera target
-        //   // spline.play(); // Start animation
-        //   // spline.pause(); // Pause animation
-        //   // spline.stop(); // Stop animation
-        //   // spline.setSpeed(0.5); // Control animation speed (0.5 = half speed)
-        // }}
-        
-        // EVENT HANDLERS:
-        // onMouseDown={(e) => console.log('Mouse down', e)}
-        // onMouseUp={(e) => console.log('Mouse up', e)}
-        // onMouseMove={(e) => console.log('Mouse move', e)}
-        // onMouseHover={(e) => console.log('Mouse hover', e)}
-        // onKeyDown={(e) => console.log('Key down', e)}
-        // onKeyUp={(e) => console.log('Key up', e)}
-        // onStart={() => console.log('Animation started')}
-        // onLookAt={(e) => console.log('Camera look at', e)}
-        // onFollow={(e) => console.log('Camera follow', e)}
-        // onWheel={(e) => console.log('Mouse wheel', e)}
-        
-        // RENDERING OPTIONS:
-        // renderOnDemand={false} // Continuous rendering vs on-demand
-        // camera="Camera" // Specify which camera to use
-        // className="custom-spline-class" // Custom CSS class
-        // id="spline-canvas" // Custom ID
+        renderOnDemand={true} // Only render when needed
       />
     </motion.div>
   );

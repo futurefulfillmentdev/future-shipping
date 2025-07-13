@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import {
   CheckCircleIcon,
   ChevronLeftIcon,
@@ -24,14 +26,17 @@ import {
   DollarSign,
 } from "lucide-react";
 
+// Phone number library imports
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react/no-unescaped-entities */
 
 /* ---------- type helpers ---------- */
 interface QuizState {
   name: string;
   website: string;
-  products: string[];
+  products: string[] | string;
   productsOther?: string;
   weight?: string;
   size?: string;
@@ -73,9 +78,9 @@ const steps: Step[] = [
   {
     kind: "text",
     title: "Let's get started",
-    subtitle: "What's your name?",
+    subtitle: "What's your full name?",
     stateKey: "name",
-    placeholder: "Your name",
+    placeholder: "Enter your full name",
   },
   {
     kind: "text",
@@ -218,8 +223,7 @@ const steps: Step[] = [
     title: "And your phone number?",
     subtitle: "We'll only call if absolutely necessary",
     stateKey: "phone",
-    placeholder: "+61…",
-    pattern: "^\\+?[0-9]{6,15}$",
+    placeholder: "Enter your phone number",
   },
 ];
 
@@ -229,6 +233,7 @@ export default function QuizPage() {
   const [page, setPage] = useState(0); // zero-based index into steps
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [checklistStep, setChecklistStep] = useState(0);
   const [state, setState] = useState<QuizState>({
     name: "",
     website: "",
@@ -246,6 +251,14 @@ export default function QuizPage() {
 
   const handleComplete = () => {
     setIsProcessing(true);
+    setChecklistStep(0);
+    
+    // Extract primary product category for return risk analysis
+    const primaryCategory = Array.isArray(state.products) && state.products.length > 0 
+      ? state.products[0] 
+      : typeof state.products === 'string' && state.products
+        ? (state.products as string).split(',')[0]?.trim() 
+        : '';
     
     // Convert quiz state to format expected by fulfillment advisor
     const formAnswers = {
@@ -262,7 +275,8 @@ export default function QuizPage() {
       biggest_shipping_problem: state.shipProblem || "",
       sku_range_choice: state.productRange || "",
       delivery_expectation_choice: state.deliveryExpect || "",
-      shipping_cost_choice: state.shipCost || ""
+      shipping_cost_choice: state.shipCost || "",
+      category: primaryCategory // Add category for return risk analysis
     };
     
     // Save converted data to localStorage
@@ -273,18 +287,48 @@ export default function QuizPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formAnswers)
-    }).catch((err) => console.error('HighLevel sync failed', err));
+    }).then(async response => {
+      const result = await response.json();
+      if (response.ok && result.ok) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`HighLevel sync successful: Contact ${result.action}`, result.contactId);
+        }
+      } else {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('HighLevel sync had issues:', result.error);
+        }
+      }
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('HighLevel sync failed', err);
+      }
+    });
     
-    // Show processing animation for 4.5 seconds (slower), then confetti, then navigate
+    // Premium, deliberate animation sequence
+    const checklistItems = [
+      "Analyzing your business data...",
+      "Comparing shipping carriers...", 
+      "Calculating cost savings...",
+      "Generating your strategy...",
+      "Finalizing recommendations..."
+    ];
+    
+    checklistItems.forEach((_, index) => {
+      setTimeout(() => {
+        setChecklistStep(index + 1);
+      }, (index + 1) * 1000); // Slower 1000ms per step for more premium feel
+    });
+    
+    // After all steps, show success briefly then navigate
     setTimeout(() => {
       setIsProcessing(false);
       setShowConfetti(true);
       
-      // Show confetti for 3 seconds then navigate
+      // Navigate automatically after success animation
       setTimeout(() => {
         router.push('/result');
-      }, 3000);
-    }, 4500);
+      }, 2000); // Longer success duration for more premium feel
+    }, checklistItems.length * 1000 + 600); // Slower transition
   };
 
   const isStepValid = useMemo(() => {
@@ -292,6 +336,13 @@ export default function QuizPage() {
     const val = state[currentStep.stateKey];
     if (currentStep.kind === "text") {
       if (!val || (typeof val === "string" && !val.trim())) return false;
+      
+      // Phone number validation for the new library
+      if (currentStep.stateKey === "phone") {
+        // The library handles E.164 format validation internally
+        return !!val && val.length > 5; // Basic validation
+      }
+      
       if (currentStep.pattern) {
         const re = new RegExp(currentStep.pattern);
         return re.test(val as string);
@@ -305,32 +356,63 @@ export default function QuizPage() {
   }, [currentStep, state]);
 
   /* ----- render helpers ----- */
-  const renderTextStep = (step: TextStep) => (
-    <div className="flex flex-col gap-10 flex-1">
-      <header>
-        <h1 className="font-bold text-3xl sm:text-4xl mb-3 tracking-tight transition-colors duration-300 hover:text-[#6BE53D]">
-          {typeof step.title === "function" ? step.title(state) : step.title}
-        </h1>
-        <p className="text-lg sm:text-xl text-gray-300 font-light transition-colors duration-300 hover:text-gray-200">{step.subtitle}</p>
-      </header>
-      <div className="input-container p-4 flex items-center group">
-        {step.helperPrefix && (
-          <span className="text-gray-400 mr-2 select-none transition-colors duration-300 group-hover:text-[#6BE53D]">{step.helperPrefix}</span>
-        )}
-        <input
-          type={step.stateKey === "email" ? "email" : "text"}
-          placeholder={step.placeholder}
-          pattern={step.pattern}
-          className="w-full bg-transparent border-0 text-white text-xl placeholder-gray-400 focus:outline-none transition-all duration-300 focus:placeholder-gray-300"
-          value={state[step.stateKey] as string}
-          onChange={(e) => updateState(step.stateKey, step.helperPrefix ? e.target.value.replace(/^https?:\/\//, "") : e.target.value)}
-          autoFocus
-        />
-      </div>
-    </div>
-  );
+  const renderTextStep = (step: TextStep) => {
+    // Special handling for phone number input
+    if (step.stateKey === "phone") {
+      return (
+        <div className="flex flex-col gap-10 flex-1">
+          <header>
+            <h1 className="font-bold text-3xl sm:text-4xl mb-3 tracking-tight transition-colors duration-300 hover:text-[#6BE53D]">
+              {typeof step.title === "function" ? step.title(state) : step.title}
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-300 font-light transition-colors duration-300 hover:text-gray-200">{step.subtitle}</p>
+          </header>
+          
+          <div className="space-y-4">
+            <div className="phone-input-container">
+              <PhoneInput
+                international
+                defaultCountry="US"
+                value={state.phone}
+                onChange={(value) => updateState('phone', value || '')}
+                className="phone-input-custom"
+                placeholder="Enter phone number"
+                autoFocus
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
 
-  const optionIcon: Record<string, JSX.Element> = {
+    // Default rendering for other text inputs
+    return (
+      <div className="flex flex-col gap-10 flex-1">
+        <header>
+          <h1 className="font-bold text-3xl sm:text-4xl mb-3 tracking-tight transition-colors duration-300 hover:text-[#6BE53D]">
+            {typeof step.title === "function" ? step.title(state) : step.title}
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-300 font-light transition-colors duration-300 hover:text-gray-200">{step.subtitle}</p>
+        </header>
+        <div className="input-container p-4 flex items-center group">
+          {step.helperPrefix && (
+            <span className="text-gray-400 mr-2 select-none transition-colors duration-300 group-hover:text-[#6BE53D]">{step.helperPrefix}</span>
+          )}
+          <input
+            type={step.stateKey === "email" ? "email" : "text"}
+            placeholder={step.placeholder}
+            pattern={step.pattern}
+            className="w-full bg-transparent border-0 text-white text-xl placeholder-gray-400 focus:outline-none transition-all duration-300 focus:placeholder-gray-300"
+            value={state[step.stateKey] as string}
+            onChange={(e) => updateState(step.stateKey, step.helperPrefix ? e.target.value.replace(/^https?:\/\//, "") : e.target.value)}
+            autoFocus
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const optionIcon: Record<string, React.ReactElement> = {
     "Clothing & Accessories": <Shirt className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
     "Skincare & Cosmetics": <FlaskConical className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
     "Supplements & Health": <Pill className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
@@ -340,10 +422,10 @@ export default function QuizPage() {
     "Books & Media": <BookOpen className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
     "Sports & Fitness": <Dumbbell className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
     Other: <CircleEllipsis className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
-    // additional icons for single-choice screens
-    Small: <Package className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />, // generic
-    Medium: <Package className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
-    Large: <Package className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
+    // Package size icons - consistent Package icons for all sizes
+    "Small (<3 cm thick)": <Package className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
+    "Medium (shoebox)": <Package className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
+    "Large (briefcase)": <Package className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
     "Very large (oversized)": <Package className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
     "Australia only": <Globe className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
     "Mostly AU, some international": <Globe className="w-5 h-5 rounded-sm transition-transform duration-300 group-hover:scale-110" />,
@@ -420,318 +502,323 @@ export default function QuizPage() {
   };
 
   /* ----- main render ----- */
-  const completion = page >= totalPages;
-  
-  // Processing state
-  if (isProcessing) {
     return (
-      <div className="relative min-h-screen bg-black overflow-hidden pt-safe-top">
-        {/* Static Green Gradient at Top */}
-        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-[#6BE53D]/35 via-[#6BE53D]/18 to-transparent pointer-events-none z-5"></div>
-        
-        {/* Gradually Visible Grid Background */}
-        <div 
-          className="absolute bottom-0 left-0 w-full h-2/3 pointer-events-none z-15"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(100, 116, 139, 0.3) 2px, transparent 2px),
-              linear-gradient(90deg, rgba(100, 116, 139, 0.3) 2px, transparent 2px)
-            `,
-            backgroundSize: '60px 60px',
-            maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%)'
-          }}
-        />
-        
-        {/* Hover Effect Grid Overlay */}
-        <div 
-          className="absolute bottom-0 left-0 w-full h-2/3 z-16 opacity-0 hover:opacity-30 transition-opacity duration-500"
-          style={{
-            backgroundImage: `
-              radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(107, 229, 61, 0.3) 0%, transparent 50%)
-            `,
-            backgroundSize: '200px 200px'
-          }}
-          onMouseMove={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = ((e.clientX - rect.left) / rect.width) * 100;
-            const y = ((e.clientY - rect.top) / rect.height) * 100;
-            e.currentTarget.style.setProperty('--mouse-x', `${x}%`);
-            e.currentTarget.style.setProperty('--mouse-y', `${y}%`);
-          }}
-        />
-        
-        <div className="relative z-20 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
-          <div className="w-full max-w-2xl relative z-10 mt-8 sm:mt-0">
-            <div className="glass-morphism container-shimmer rounded-3xl shadow-2xl p-6 sm:p-10 text-center animate-step min-h-[32rem] flex flex-col items-center justify-center">
-              
-              {/* Processing Animation */}
-              <div className="mb-8 flex flex-col items-center">
-                {/* Clean Processing Icon */}
-                <div className="relative mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-r from-[#6BE53D] to-teal-600 flex items-center justify-center animate-pulse">
-                    <div className="w-3 h-3 bg-white rounded-full"></div>
-                  </div>
-                </div>
-                
-                {/* Processing Text */}
-                <h1 className="font-bold text-2xl sm:text-3xl mb-4 tracking-tight">
-                  Analyzing Your Business...
-                </h1>
-                <p className="text-base sm:text-lg font-medium mb-8" style={{ color: '#6BE53D' }}>
-                  Our AI is comparing 50+ fulfillment providers
-                </p>
-                
-                {/* Processing Steps */}
-                <div className="space-y-4 w-full max-w-md">
-                  <div className="flex items-center gap-3 animate-fadeIn">
-                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#6BE53D' }}></div>
-                    <span className="font-medium" style={{ color: '#6BE53D' }}>Analyzing your shipping requirements</span>
-                    <div className="flex-1 h-px bg-gradient-to-r from-[#6BE53D]/50 to-transparent"></div>
-                  </div>
-                  <div className="flex items-center gap-3 animate-fadeIn" style={{ animationDelay: '1s' }}>
-                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#6BE53D', animationDelay: '1s' }}></div>
-                    <span className="font-medium" style={{ color: '#6BE53D' }}>Comparing costs across providers</span>
-                    <div className="flex-1 h-px bg-gradient-to-r from-[#6BE53D]/50 to-transparent" style={{ animationDelay: '1s' }}></div>
-                  </div>
-                  <div className="flex items-center gap-3 animate-fadeIn" style={{ animationDelay: '2s' }}>
-                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#6BE53D', animationDelay: '2s' }}></div>
-                    <span className="font-medium" style={{ color: '#6BE53D' }}>Calculating optimal delivery zones</span>
-                    <div className="flex-1 h-px bg-gradient-to-r from-[#6BE53D]/50 to-transparent" style={{ animationDelay: '2s' }}></div>
-                  </div>
-                  <div className="flex items-center gap-3 animate-fadeIn" style={{ animationDelay: '3s' }}>
-                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#6BE53D', animationDelay: '3s' }}></div>
-                    <span className="font-medium" style={{ color: '#6BE53D' }}>Matching with similar businesses</span>
-                    <div className="flex-1 h-px bg-gradient-to-r from-[#6BE53D]/50 to-transparent" style={{ animationDelay: '3s' }}></div>
-                  </div>
-                  <div className="flex items-center gap-3 animate-fadeIn" style={{ animationDelay: '4s' }}>
-                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#6BE53D', animationDelay: '4s' }}></div>
-                    <span className="font-medium" style={{ color: '#6BE53D' }}>Generating personalized recommendations</span>
-                    <div className="flex-1 h-px bg-gradient-to-r from-[#6BE53D]/50 to-transparent" style={{ animationDelay: '4s' }}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    <div className="min-h-screen bg-black text-white overflow-hidden relative">
+      {/* Green gradient background matching home page */}
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#6BE53D]/20 via-transparent to-transparent pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none"></div>
+      
 
-  // Success celebration state
-  if (showConfetti) {
-    return (
-      <div className="relative min-h-screen bg-black overflow-hidden pt-safe-top">
-        {/* Static Green Gradient at Top */}
-        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-[#6BE53D]/35 via-[#6BE53D]/18 to-transparent pointer-events-none z-5"></div>
-        
-        {/* Gradually Visible Grid Background */}
-        <div 
-          className="absolute bottom-0 left-0 w-full h-2/3 pointer-events-none z-15"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(100, 116, 139, 0.3) 2px, transparent 2px),
-              linear-gradient(90deg, rgba(100, 116, 139, 0.3) 2px, transparent 2px)
-            `,
-            backgroundSize: '60px 60px',
-            maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%)'
-          }}
-        />
-        
-        {/* Hover Effect Grid Overlay */}
-        <div 
-          className="absolute bottom-0 left-0 w-full h-2/3 z-16 opacity-0 hover:opacity-30 transition-opacity duration-500"
-          style={{
-            backgroundImage: `
-              radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(107, 229, 61, 0.3) 0%, transparent 50%)
-            `,
-            backgroundSize: '200px 200px'
-          }}
-          onMouseMove={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = ((e.clientX - rect.left) / rect.width) * 100;
-            const y = ((e.clientY - rect.top) / rect.height) * 100;
-            e.currentTarget.style.setProperty('--mouse-x', `${x}%`);
-            e.currentTarget.style.setProperty('--mouse-y', `${y}%`);
-          }}
-        />
-        
-        {/* Beautiful particle effects */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-15">
-          {/* Floating light particles */}
-          {[...Array(30)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute animate-float"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${3 + Math.random() * 2}s`
-              }}
+      
+
+      
+      {/* Premium Analysis Loading Component */}
+      <AnimatePresence>
+        {isProcessing && (
+          <motion.div 
+            className="fixed inset-0 bg-black flex items-center justify-center z-40 px-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
+            {/* Green gradient background matching home page */}
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#6BE53D]/20 via-transparent to-transparent pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none"></div>
+            
+            <motion.div 
+              className="w-full max-w-2xl md:max-w-3xl relative z-10"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
             >
-              <div 
-                className="w-1 h-1 rounded-full opacity-60 animate-pulse"
-                style={{
-                  backgroundColor: Math.random() > 0.5 ? '#6BE53D' : '#2dd4bf',
-                  animationDelay: `${Math.random() * 2}s`,
-                  boxShadow: `0 0 10px ${Math.random() > 0.5 ? '#6BE53D' : '#2dd4bf'}`
-                }}
-              />
+              <div className="bg-black/40 backdrop-blur-2xl border border-white/20 shadow-2xl p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl">
+                
+                {/* Header Section */}
+                <motion.div 
+                  className="text-center mb-8 sm:mb-10"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                >
+                  {/* Future Logo */}
+                  <motion.div
+                    className="mb-6"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                  >
+                    <Image 
+                      src="/future-logo-white.svg" 
+                      alt="Future Fulfillment" 
+                      width={160} 
+                      height={36}
+                      className="h-8 sm:h-10 w-auto mx-auto" 
+                      priority
+                    />
+                  </motion.div>
+                  
+                  <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl mb-3 sm:mb-4 tracking-tight text-white">
+                    Analyzing Your Business
+                </h1>
+                  <p className="text-base sm:text-lg md:text-xl text-gray-300 font-light max-w-xl mx-auto leading-relaxed">
+                    Our AI is crafting the perfect shipping strategy for your unique business
+                  </p>
+                </motion.div>
+
+                {/* Elegant Progress Bar */}
+                <motion.div 
+                  className="mb-8 sm:mb-10"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                >
+                  <div className="w-full bg-white/10 rounded-full h-1 mb-4 overflow-hidden">
+                    <motion.div 
+                      className="h-1 bg-gradient-to-r from-[#6BE53D] to-[#6BE53D]/60 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(checklistStep / 5) * 100}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-xs sm:text-sm">
+                    <span className="text-gray-400">Processing...</span>
+                    <span className="text-[#6BE53D] font-medium">
+                      {Math.round((checklistStep / 5) * 100)}%
+                    </span>
+                  </div>
+                </motion.div>
+
+                {/* Premium Task List */}
+                <div className="space-y-2 sm:space-y-3">
+                  {[
+                    "Analyzing your business data...",
+                    "Comparing shipping carriers...",
+                    "Calculating cost savings...", 
+                    "Generating your strategy...",
+                    "Finalizing recommendations..."
+                  ].map((item, index) => (
+                    <motion.div 
+                      key={index}
+                      className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border transition-all duration-500 ${
+                        checklistStep > index 
+                          ? 'border-[#6BE53D]/50 bg-[#6BE53D]/10' 
+                          : checklistStep === index + 1 
+                            ? 'border-[#6BE53D] bg-[#6BE53D]/5' 
+                            : 'border-white/10 bg-white/5'
+                      }`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: 0.8 + (index * 0.1) }}
+                    >
+                      <div className="flex items-center space-x-3 sm:space-x-4">
+                        <motion.div 
+                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center transition-all duration-500 ${
+                            checklistStep > index 
+                              ? 'bg-[#6BE53D] text-black' 
+                              : checklistStep === index + 1 
+                                ? 'bg-[#6BE53D]/20 border-2 border-[#6BE53D]' 
+                                : 'bg-white/20'
+                          }`}
+                          animate={checklistStep === index + 1 ? { scale: [1, 1.1, 1] } : {}}
+                          transition={{ duration: 1, repeat: checklistStep === index + 1 ? Infinity : 0 }}
+                        >
+                          {checklistStep > index ? (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              <CheckCircleIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </motion.div>
+                          ) : checklistStep === index + 1 ? (
+                            <motion.div 
+                              className="w-2 h-2 sm:w-3 sm:h-3 bg-[#6BE53D] rounded-full"
+                              animate={{ opacity: [0.5, 1, 0.5] }}
+                              transition={{ duration: 1.5, repeat: Infinity }}
+                            />
+                          ) : (
+                            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white/40 rounded-full" />
+                          )}
+                        </motion.div>
+                        <span className={`text-sm sm:text-base md:text-lg font-medium transition-colors duration-500 ${
+                          checklistStep > index 
+                            ? 'text-[#6BE53D]' 
+                            : checklistStep === index + 1 
+                              ? 'text-white' 
+                              : 'text-white/60'
+                        }`}>
+                          {item}
+                        </span>
             </div>
+                    </motion.div>
           ))}
-          
-          {/* Decorative extras removed for cleaner look */}
-          
-          {/* Radial success glow */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-[#6BE53D]/10 via-[#6BE53D]/5 to-transparent rounded-full animate-pulse"></div>
         </div>
-        
-        <div className="relative z-20 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
-          <div className="w-full max-w-2xl relative z-10 mt-8 sm:mt-0">
-            <div className="glass-morphism container-shimmer rounded-3xl shadow-2xl p-6 sm:p-10 text-center animate-step min-h-[32rem] flex flex-col items-center justify-center">
-              
-              {/* Success Animation */}
-              <div className="mb-8 flex flex-col items-center">
-                {/* Success Icon with elegant animation */}
-                <div className="relative mb-6">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-r from-[#6BE53D] to-teal-600 flex items-center justify-center animate-pulseGlow">
-                    <CheckCircleIcon className="w-12 h-12 text-white animate-bounce" style={{ animationDuration: '1s' }} />
                   </div>
-                  
-                  {/* Success ripples */}
-                  <div className="absolute inset-0 w-24 h-24">
-                    <div className="absolute inset-0 rounded-full border-2 border-[#6BE53D]/40 animate-ping"></div>
-                    <div className="absolute inset-0 rounded-full border border-[#6BE53D]/30 animate-ping" style={{ animationDelay: '0.3s' }}></div>
-                    <div className="absolute inset-0 rounded-full border border-teal-400/30 animate-ping" style={{ animationDelay: '0.6s' }}></div>
-                  </div>
-                  
-                  {/* Simplified glow only (rays removed) */}
-                </div>
-                
-                {/* Success Text */}
-                <h1 className="font-bold text-3xl sm:text-4xl mb-4 tracking-tight">
-                  Analysis Complete! ✨
-                </h1>
-                <p className="text-lg sm:text-xl font-medium mb-6" style={{ color: '#6BE53D' }}>
-                  We've found your perfect fulfillment strategy
-                </p>
-                
-                {/* Success stats */}
-                <div className="grid grid-cols-3 gap-4 text-center text-sm">
-                  <div className="glass-morphism p-3 rounded-xl animate-fadeIn transition-all duration-300 hover:scale-105 hover:bg-white/10 hover:shadow-lg hover:shadow-[#6BE53D]/20 cursor-pointer group">
-                    <div className="font-bold text-lg transition-all duration-300 group-hover:scale-110" style={{ color: '#6BE53D' }}>1,000+</div>
-                    <div className="text-gray-400 transition-colors duration-300 group-hover:text-gray-300">Brands Analyzed</div>
-                  </div>
-                  <div className="glass-morphism p-3 rounded-xl animate-fadeIn transition-all duration-300 hover:scale-105 hover:bg-white/10 hover:shadow-lg hover:shadow-[#6BE53D]/20 cursor-pointer group" style={{ animationDelay: '0.2s' }}>
-                    <div className="font-bold text-lg transition-all duration-300 group-hover:scale-110" style={{ color: '#6BE53D' }}>14</div>
-                    <div className="text-gray-400 transition-colors duration-300 group-hover:text-gray-300">Data Points</div>
-                  </div>
-                  <div className="glass-morphism p-3 rounded-xl animate-fadeIn transition-all duration-300 hover:scale-105 hover:bg-white/10 hover:shadow-lg hover:shadow-[#6BE53D]/20 cursor-pointer group" style={{ animationDelay: '0.4s' }}>
-                    <div className="font-bold text-lg transition-all duration-300 group-hover:scale-110" style={{ color: '#6BE53D' }}>AI</div>
-                    <div className="text-gray-400 transition-colors duration-300 group-hover:text-gray-300">Powered</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="relative min-h-screen bg-black overflow-hidden pt-safe-top">
-      {/* Static Green Gradient at Top */}
-      <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-[#6BE53D]/35 via-[#6BE53D]/18 to-transparent pointer-events-none z-5"></div>
-      
-      {/* Gradually Visible Grid Background */}
-      <div 
-        className="absolute bottom-0 left-0 w-full h-2/3 pointer-events-none z-15"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(100, 116, 139, 0.3) 2px, transparent 2px),
-            linear-gradient(90deg, rgba(100, 116, 139, 0.3) 2px, transparent 2px)
-          `,
-          backgroundSize: '60px 60px',
-          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%)'
-        }}
-      />
-      
-      {/* Hover Effect Grid Overlay */}
-      <div 
-        className="absolute bottom-0 left-0 w-full h-2/3 z-16 opacity-0 hover:opacity-30 transition-opacity duration-500"
-        style={{
-          backgroundImage: `
-            radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(107, 229, 61, 0.3) 0%, transparent 50%)
-          `,
-          backgroundSize: '200px 200px'
-        }}
-        onMouseMove={(e) => {
-          const rect = e.currentTarget.getBoundingClientRect();
-          const x = ((e.clientX - rect.left) / rect.width) * 100;
-          const y = ((e.clientY - rect.top) / rect.height) * 100;
-          e.currentTarget.style.setProperty('--mouse-x', `${x}%`);
-          e.currentTarget.style.setProperty('--mouse-y', `${y}%`);
-        }}
-      />
-      
-      {/* Content Container */}
-      <div className="relative z-20 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
-        <div className="w-full max-w-2xl relative z-10">
-          {!completion ? (
-            <div
-              key={page}
-              className="glass-morphism container-shimmer rounded-3xl shadow-2xl p-4 sm:p-6 md:p-10 animate-step min-h-[28rem] sm:min-h-[32rem] flex flex-col transition-all duration-500 hover:shadow-3xl hover:shadow-[#6BE53D]/10"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && isStepValid) {
-                  setPage((p) => p + 1);
-                }
-              }}
-            >
-              {currentStep.kind === "text" ? renderTextStep(currentStep) : renderChoiceStep(currentStep)}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-              {/* nav */}
-              <div className="flex justify-between mt-auto pt-6 sm:pt-8">
+      {/* Premium Success State */}
+      <AnimatePresence>
+        {showConfetti && (
+          <motion.div 
+            className="fixed inset-0 bg-black flex items-center justify-center z-40 px-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {/* Green gradient background matching home page */}
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#6BE53D]/20 via-transparent to-transparent pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none"></div>
+            
+            <motion.div 
+              className="w-full max-w-2xl md:max-w-3xl relative z-10"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.1, opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            >
+              <div className="bg-black/40 backdrop-blur-2xl border border-white/20 shadow-2xl p-6 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl text-center">
+                
+                {/* Success Icon with Animation */}
+                <motion.div 
+                  className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 sm:mb-8 rounded-full bg-gradient-to-r from-[#6BE53D] to-[#6BE53D]/80 flex items-center justify-center"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                  >
+                    <CheckCircleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-black" />
+                  </motion.div>
+                </motion.div>
+
+                {/* Success Content */}
+                <motion.div
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                >
+                  <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl mb-3 sm:mb-4 tracking-tight text-white">
+                    Analysis Complete!
+                </h1>
+                  <p className="text-base sm:text-lg md:text-xl text-[#6BE53D] font-light mb-2">
+                    Your personalized strategy is ready
+                  </p>
+                  <motion.p 
+                    className="text-gray-400 text-sm sm:text-base"
+                    animate={{ opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    Redirecting to your results...
+                  </motion.p>
+                </motion.div>
+
+                {/* Subtle Loading Dots */}
+                <motion.div 
+                  className="flex justify-center space-x-2 mt-6 sm:mt-8"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+              key={i}
+                      className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#6BE53D] rounded-full"
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        delay: i * 0.2
+                      }}
+                    />
+                  ))}
+                </motion.div>
+                  </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Main content */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Progress bar */}
+        <div className="w-full bg-gray-800/50 backdrop-blur-sm">
+          <div 
+            className="h-2 bg-[#6BE53D] transition-all duration-500 ease-out"
+            style={{ width: `${progressPercent}%` }}
+          />
+                  </div>
+                  
+        {/* Header */}
+        <header className="flex items-center justify-between p-6 backdrop-blur-sm">
+          <div className="flex items-center space-x-3">
+            <Image 
+              src="/future-logo-white.svg" 
+              alt="Future Fulfillment Logo" 
+              width={120} 
+              height={28}
+              className="h-7 w-auto" 
+            />
+                  </div>
+          <div className="text-sm text-gray-400">
+            {page + 1} of {totalPages}
+                  </div>
+        </header>
+        
+        {/* Main content area */}
+        <main className="flex-1 flex items-center justify-center px-6 py-8">
+          <div className="w-full max-w-4xl">
+            <div className="bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl p-8 sm:p-12 rounded-3xl">
+              {currentStep?.kind === "text" && renderTextStep(currentStep)}
+              {currentStep?.kind === "choice" && renderChoiceStep(currentStep)}
+              
+              {/* Navigation buttons directly under card content */}
+              <div className={`flex mt-8 ${page > 0 ? 'justify-between' : 'justify-end'}`}>
+                {/* Back button - only show after first page */}
+                {page > 0 && (
                 <button
-                  disabled={page === 0}
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  className="px-2 sm:px-3 py-1.5 sm:py-2 text-gray-300 hover:text-[#6BE53D] font-medium flex items-center text-xs sm:text-sm disabled:opacity-20 transition-all duration-300 hover:scale-105 hover:bg-white/5 rounded-lg disabled:hover:scale-100 disabled:hover:bg-transparent group"
+                    className="flex items-center space-x-2 px-6 py-3 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 hover:bg-white/10 transition-all duration-300 group"
                 >
-                  <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-1 transition-transform duration-300 group-hover:-translate-x-1" /> Back
+                    <ChevronLeftIcon className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" />
+                    <span>Back</span>
                 </button>
+                )}
+                
+                {/* Next/Complete button */}
+                {page < totalPages - 1 ? (
                 <button
-                  disabled={!isStepValid}
                   onClick={() => setPage((p) => p + 1)}
-                  className="liquid-button px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 text-white font-medium rounded-full flex items-center justify-center disabled:opacity-50 text-xs sm:text-sm group"
+                    disabled={!isStepValid}
+                    className="flex items-center space-x-2 px-8 py-3 bg-[#6BE53D] hover:bg-[#5BC72D] text-black font-medium rounded-full transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
-                  Continue <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 ml-1 sm:ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+                    <span>Next</span>
+                    <ChevronRightIcon className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                 </button>
-              </div>
-            </div>
-          ) : (
-            <div key="done" className="glass-morphism container-shimmer rounded-3xl shadow-2xl p-4 sm:p-6 md:p-10 text-center animate-step min-h-[28rem] sm:min-h-[32rem] flex flex-col transition-all duration-500 hover:shadow-3xl hover:shadow-[#6BE53D]/10">
-              <div className="mb-6 sm:mb-8 flex flex-col items-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-[#6BE53D] to-teal-600 rounded-full mb-4 sm:mb-6 flex items-center justify-center animate-pulseGlow">
-                  <CheckCircleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                </div>
-                <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3 tracking-tight">All set!</h1>
-                <p className="text-base sm:text-lg md:text-xl text-gray-300 font-light">We're ready to optimize your shipping experience</p>
-              </div>
-              <div className="flex justify-center mt-auto">
+                ) : (
                 <button 
                   onClick={handleComplete}
-                  className="liquid-button px-6 sm:px-8 md:px-10 py-2 sm:py-2.5 md:py-3 text-white font-medium rounded-full flex items-center justify-center text-xs sm:text-sm group"
+                    disabled={!isStepValid}
+                    className="flex items-center space-x-2 px-8 py-3 bg-[#6BE53D] hover:bg-[#5BC72D] text-black font-bold rounded-full transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
                 >
-                  Get My Results <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 ml-1 sm:ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+                    <span>Complete</span>
+                    <CheckCircleIcon className="w-5 h-5" />
                 </button>
+                )}
               </div>
             </div>
-          )}
         </div>
+        </main>
       </div>
     </div>
   );

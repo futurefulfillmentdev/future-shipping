@@ -257,14 +257,7 @@ Our warehouse teams are an extension of your team, and we pride ourselves on pro
  ****************************************************************************************/
 
 // Static lookup data
-const QUICK_TIPS: Record<string, string> = {
-  "Hard to manage returns": "Set up an automated RMA portal so customers can self-serve returns – this cuts back-and-forth emails while giving you instant visibility on incoming stock.",
-  "Too expensive": "Compare cubic and dead-weight dimensions on every SKU – trimming even 2 cm can shift you into the next satchel size and slash cost.",
-  "Slow delivery": "Pre-print labels the night before dispatch to shave minutes off daily pick-pack and hit earlier carrier cut-offs.",
-  "Hard to track inventory": "Deploy simple barcoding (even DYMO labels) so every SKU scan updates stock counts in real time – goodbye spreadsheet drama.",
-  "Stockouts": "Set reorder alerts at 25% of weekly velocity to trigger purchase orders well before you hit zero.",
-  "Packaging waste": "Right-size cartons with adjustable score lines – you'll protect products and avoid paying to ship fresh air."
-};
+
 
 const GEAR_LISTS: Record<"low" | "mid" | "high", string[]> = {
   low: [
@@ -273,8 +266,7 @@ const GEAR_LISTS: Record<"low" | "mid" | "high", string[]> = {
   ],
   mid: [
     "Zebra ZT230 industrial printer",
-    "Handheld barcode scanner",
-    "Pick-to-light shelf labels"
+    "Handheld barcode scanner"
   ],
   high: [
     "Automated carton sealer",
@@ -290,13 +282,7 @@ const SATCHEL_PRICES: Record<"S" | "M" | "L" | "XL", number> = {
   XL: 1.7
 };
 
-const MIGRATION_MILESTONES = [
-  "Contract signed & {{orders}} units inbound to warehouse",
-  "System integrations & test orders live",
-  "Inventory put-away and cycle counts verified",
-  "First customer orders shipped via Future",
-  "30-day review – optimisation & KPI report"
-];
+
 
 const SPEED_GAIN_DAYS: Record<FulfillmentDecision, number> = {
   DIY: 0,
@@ -777,10 +763,8 @@ function renderPage(decision: FulfillmentDecision, content: any, extras: Record<
   const {
     readiness_score_pct = 0,
     speed_gain_days = 0,
-    quick_tip = "",
     gear_list = null,
-    migration_timeline = null,
-    packaging_cost_estimate = null,
+
     returns_risk_alert = null,
     savings_slider_data = null,
     cheatsheet_link = null,
@@ -823,23 +807,16 @@ function renderPage(decision: FulfillmentDecision, content: any, extras: Record<
     html += `<h3>Recommended Gear</h3>` + renderArray(gear_list);
   }
 
-  // Migration timeline
-  if (migration_timeline) {
-    html += `<h3>Migration Timeline</h3>` + renderArray(migration_timeline, "ol");
-  }
 
-  // Packaging cost paragraph
-  if (typeof packaging_cost_estimate === "number") {
-    html += `<p>Your current packaging spend is about $${packaging_cost_estimate} per month.</p>`;
-  }
+
+
 
   // Returns risk alert
   if (returns_risk_alert) {
     html += `<p><strong>Heads up:</strong> ${returns_risk_alert}</p>`;
   }
 
-  // Quick tip
-  html += `<p><strong>Quick Tip:</strong> ${quick_tip}</p>`;
+
 
   // NEW: Enhanced insights section
   html += `<div class="score-box">
@@ -918,7 +895,7 @@ export function generateResult(form: QuizFormAnswers): { page_id: string; render
   // Derived insights
   const readiness_score_pct = calcReadiness(form);
   const speed_gain_days = SPEED_GAIN_DAYS[decision];
-  const quick_tip = QUICK_TIPS[form.biggest_shipping_problem] || "Audit your pick-pack process once a month to spot easy wins.";
+
 
   // Gear list (DIY)
   let gear_list: string[] | null = null;
@@ -928,17 +905,9 @@ export function generateResult(form: QuizFormAnswers): { page_id: string; render
     gear_list = GEAR_LISTS[band];
   }
 
-  // Migration timeline (AUS pages)
-  let migration_timeline: string[] | null = null;
-  if (decision === "AUS_3PL" || decision === "AUS_MULTI") {
-    migration_timeline = MIGRATION_MILESTONES.map(m => m.replace("{{orders}}", String(monthlyOrders)));
-  }
 
-  // Packaging cost estimate (DIY & AUS_3PL)
-  let packaging_cost_estimate: number | null = null;
-  if (decision === "DIY" || decision === "AUS_3PL") {
-    packaging_cost_estimate = calcPackagingCost(form, monthlyOrders);
-  }
+
+
 
   // Returns risk alert
   const returns_risk_alert = form.category && RETURNS_RISK_CATEGORIES.has(form.category) ?
@@ -973,10 +942,7 @@ export function generateResult(form: QuizFormAnswers): { page_id: string; render
   const rendered_page = renderPage(decision, content, {
     readiness_score_pct,
     speed_gain_days,
-    quick_tip,
     gear_list,
-    migration_timeline,
-    packaging_cost_estimate,
     returns_risk_alert,
     savings_slider_data,
     cheatsheet_link,
