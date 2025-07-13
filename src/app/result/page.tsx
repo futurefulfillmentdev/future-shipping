@@ -14,7 +14,7 @@ interface QuizFormAnswers {
   products: string;
   package_weight_choice: string;
   package_size_choice: string;
-  monthly_orders_choice: string;
+  volume_range: string;
   customer_location_choice: string;
   current_shipping_method: string;
   biggest_shipping_problem: string;
@@ -550,8 +550,19 @@ export default function ResultPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none"></div>
         
         <div className="text-center relative z-10">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 mx-auto" style={{ borderColor: '#6BE53D' }}></div>
-          <p className="mt-4 text-xl">Analyzing your results...</p>
+          {/* Removed spinner - just show text with subtle animation */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+          >
+            <p className="text-xl">Analyzing your results...</p>
+            <div className="mt-4 flex justify-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-[#6BE53D] animate-pulse" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 rounded-full bg-[#6BE53D] animate-pulse" style={{ animationDelay: '200ms' }}></div>
+              <div className="w-2 h-2 rounded-full bg-[#6BE53D] animate-pulse" style={{ animationDelay: '400ms' }}></div>
+            </div>
+          </motion.div>
         </div>
       </div>
     );

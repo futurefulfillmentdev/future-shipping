@@ -8,7 +8,7 @@ interface QuizFormAnswers {
   products: string;                    // Array joined as string
   package_weight_choice: string;       // e.g. "1 kg – 2 kg"
   package_size_choice: string;         // e.g. "Medium (shoebox)"
-  monthly_orders_choice: string;       // e.g. "500 – 1 000"
+  volume_range: string;       // e.g. "500 – 1 000"
   customer_location_choice: string;    // e.g. "Mostly AU, some international"
   current_shipping_method: string;     // e.g. "Home / garage"
   biggest_shipping_problem: string;
@@ -32,7 +32,7 @@ function decideFulfillmentOption(answers: QuizFormAnswers): FulfillmentDecision 
     "2 000+": 2500
   };
   // Existing & new helper values
-  const monthlyOrders = orderMapping[answers.monthly_orders_choice] || 0;
+  const monthlyOrders = orderMapping[answers.volume_range] || 0;
   const isFromChina = answers.current_shipping_method === "3PL in China";
   const isGlobalFocus = answers.customer_location_choice?.includes("international");
   const skuCount = parseSkuCount(answers);
@@ -109,7 +109,7 @@ function calculateSavings(decision: FulfillmentDecision, answers: QuizFormAnswer
     "1 000 – 2 000": 2000,
     "2 000+": 2500
   };
-  const monthlyOrders = orderMapping[answers.monthly_orders_choice] || 100;
+  const monthlyOrders = orderMapping[answers.volume_range] || 100;
 
   let savingsPerOrder = 0;
 
@@ -873,7 +873,7 @@ function deriveConfidence(answers: QuizFormAnswers): { level: "High" | "Medium" 
   let penalty = 0;
   if (!answers.website_url) { assumptions.push("Website URL missing – used generic product segment averages"); penalty += 1; }
   if (!answers.category) { assumptions.push("Product category not provided – returns risk estimated"); penalty += 1; }
-  if (answers.monthly_orders_choice === "Under 100" || answers.monthly_orders_choice === "2 000+") {
+  if (answers.volume_range === "Under 100" || answers.volume_range === "2 000+") {
     assumptions.push("Monthly order range very broad – savings calculated with midpoint");
     penalty += 1;
   }

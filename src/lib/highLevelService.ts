@@ -9,7 +9,7 @@ type FormAnswers = {
   products: string;
   package_weight_choice: string;
   package_size_choice: string;
-  monthly_orders_choice: string;
+  volume_range: string;
   customer_location_choice: string;
   current_shipping_method: string;
   biggest_shipping_problem: string;
@@ -71,9 +71,9 @@ export async function pushToHighLevel(answers: FormAnswers) {
       { key: "Product Category", value: primaryCategory },
       { key: "Website", value: answers.website_url },
       
-      // Volume and scale
-      { key: "Volume", value: answers.monthly_orders_choice }, // Primary field - maps to {{ contact.volume }}
-      { key: "Monthly Orders", value: answers.monthly_orders_choice }, // Backup/legacy field
+      // Volume and scale  
+      { id: "ZgkUe40qxW7vycXCv5aD", value: answers.volume_range }, // Volume Range field - maps to {{ contact.volume_range }}
+      { key: "Monthly Orders", value: answers.volume_range }, // Backup/legacy field
       { key: "SKU Range", value: answers.sku_range_choice },
       
       // Package characteristics

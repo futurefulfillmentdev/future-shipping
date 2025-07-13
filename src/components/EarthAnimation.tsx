@@ -6,7 +6,7 @@ import { useRef, useState, useEffect } from 'react';
 // Direct import with lazy loading via React.lazy if needed
 let Spline: any = null;
 
-// Lazy load Spline only when needed
+// Preload Spline immediately when component is imported
 const loadSpline = async () => {
   if (!Spline) {
     try {
@@ -20,6 +20,9 @@ const loadSpline = async () => {
   return Spline;
 };
 
+// Start loading Spline immediately
+loadSpline();
+
 interface EarthAnimationProps {
   onGlobeReady?: () => void;
 }
@@ -30,7 +33,7 @@ export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
   const [hasError, setHasError] = useState(false);
   const [SplineComponent, setSplineComponent] = useState<any>(null);
 
-  // Load Spline component on mount
+  // Load Spline component on mount with priority
   useEffect(() => {
     loadSpline().then(SplineComp => {
       if (SplineComp) {
@@ -42,13 +45,13 @@ export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
     });
   }, [onGlobeReady]);
 
-  // Fallback trigger for text animations
+  // Extended fallback trigger for text animations
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
       if (!isLoaded) {
         onGlobeReady?.();
       }
-    }, 2000); // Fallback after 2 seconds
+    }, 3000); // Extended to give globe more time to load
 
     return () => clearTimeout(fallbackTimer);
   }, [isLoaded, onGlobeReady]);
@@ -82,16 +85,17 @@ export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
     onGlobeReady?.();
   };
 
-  // Show loading spinner while Spline is loading
+  // No loading spinner - just show fallback gradient while Spline loads
   if (!SplineComponent && !hasError) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.7 }}
+        animate={{ opacity: 0.3 }}
         transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-        className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center"
+        className="absolute inset-0 pointer-events-none z-0"
       >
-        <div className="w-16 h-16 border-4 border-[#6BE53D] border-t-transparent rounded-full animate-spin"></div>
+        <div className="absolute inset-0 bg-gradient-radial from-[#6BE53D]/10 via-transparent to-transparent" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-conic from-[#6BE53D]/20 via-transparent to-[#6BE53D]/10 animate-pulse" style={{ animationDuration: '4s' }} />
       </motion.div>
     );
   }
@@ -106,7 +110,7 @@ export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
         className="absolute inset-0 pointer-events-none z-0"
       >
         <div className="absolute inset-0 bg-gradient-radial from-[#6BE53D]/10 via-transparent to-transparent" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-conic from-[#6BE53D]/20 via-transparent to-[#6BE53D]/10 animate-spin" style={{ animationDuration: '20s' }} />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-conic from-[#6BE53D]/20 via-transparent to-[#6BE53D]/10 animate-pulse" style={{ animationDuration: '4s' }} />
       </motion.div>
     );
   }
@@ -118,7 +122,7 @@ export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
       transition={{ 
         duration: 1.2, 
         ease: [0.23, 1, 0.32, 1],
-        delay: 0.2 
+        delay: 0 // Remove delay to start immediately
       }}
       className="absolute inset-0 pointer-events-none z-0"
     >
@@ -131,7 +135,7 @@ export default function EarthAnimation({ onGlobeReady }: EarthAnimationProps) {
           height: '100%',
           objectFit: 'cover'
         }}
-        renderOnDemand={true} // Only render when needed
+        renderOnDemand={false} // Render immediately for priority
       />
     </motion.div>
   );

@@ -269,7 +269,7 @@ export default function QuizPage() {
       products: Array.isArray(state.products) ? state.products.join(', ') : state.products,
       package_weight_choice: state.weight || "",
       package_size_choice: state.size || "",
-      monthly_orders_choice: state.orders || "",
+      volume_range: state.orders || "",
       customer_location_choice: state.customerLoc || "",
       current_shipping_method: state.shipMethod || "",
       biggest_shipping_problem: state.shipProblem || "",
