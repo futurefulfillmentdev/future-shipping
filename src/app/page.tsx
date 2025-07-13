@@ -256,7 +256,7 @@ export default function Home() {
             <span className="text-[#6BE53D]">
                 30-50%
             </span>{' '}
-              on Fulfillment Costs
+              on Fulfillment&nbsp;Costs
           </motion.h2>
 
           {/* Benefits Container */}

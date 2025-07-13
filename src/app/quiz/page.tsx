@@ -562,7 +562,7 @@ export default function QuizPage() {
                     Analyzing Your Business
                 </h1>
                   <p className="text-base sm:text-lg md:text-xl text-gray-300 font-light max-w-xl mx-auto leading-relaxed">
-                    Our AI is crafting the perfect shipping strategy for your unique business
+                    Our AI is crafting the perfect shipping strategy for your unique&nbsp;business
                   </p>
                 </motion.div>
 
@@ -699,6 +699,23 @@ export default function QuizPage() {
                   </motion.div>
                 </motion.div>
 
+                {/* Future Logo */}
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.1 }}
+                  className="mb-6 sm:mb-8"
+                >
+                  <Image 
+                    src="/future-logo-white.svg" 
+                    alt="Future Fulfillment" 
+                    width={160} 
+                    height={36}
+                    className="h-6 sm:h-8 w-auto mx-auto" 
+                    priority
+                  />
+                </motion.div>
+
                 {/* Success Content */}
                 <motion.div
                   initial={{ y: 30, opacity: 0 }}
@@ -709,14 +726,14 @@ export default function QuizPage() {
                     Analysis Complete!
                 </h1>
                   <p className="text-base sm:text-lg md:text-xl text-[#6BE53D] font-light mb-2">
-                    Your personalized strategy is ready
+                    Your personalized strategy&nbsp;is&nbsp;ready
                   </p>
                   <motion.p 
                     className="text-gray-400 text-sm sm:text-base"
                     animate={{ opacity: [0.6, 1, 0.6] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    Redirecting to your results...
+                    Redirecting to your&nbsp;results...
                   </motion.p>
                 </motion.div>
 
@@ -778,9 +795,23 @@ export default function QuizPage() {
         {/* Main content area */}
         <main className="flex-1 flex items-center justify-center px-6 py-8">
           <div className="w-full max-w-4xl">
-            <div className="bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl p-8 sm:p-12 rounded-3xl">
-              {currentStep?.kind === "text" && renderTextStep(currentStep)}
-              {currentStep?.kind === "choice" && renderChoiceStep(currentStep)}
+            <div className="bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl shadow-[#6BE53D]/20 drop-shadow-[0_8px_32px_rgba(107,229,61,0.15)] p-8 sm:p-12 rounded-3xl transition-all duration-500 ease-out hover:scale-[1.02] hover:shadow-[#6BE53D]/30 hover:drop-shadow-[0_12px_48px_rgba(107,229,61,0.25)] hover:border-[#6BE53D]/20 hover:bg-black/30 hover:backdrop-blur-2xl group">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={page}
+                  initial={{ opacity: 0, filter: "blur(8px)", y: 20 }}
+                  animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                  exit={{ opacity: 0, filter: "blur(8px)", y: -20 }}
+                  transition={{ 
+                    duration: 0.4, 
+                    ease: [0.23, 1, 0.32, 1],
+                    filter: { duration: 0.3 }
+                  }}
+                >
+                  {currentStep?.kind === "text" && renderTextStep(currentStep)}
+                  {currentStep?.kind === "choice" && renderChoiceStep(currentStep)}
+                </motion.div>
+              </AnimatePresence>
               
               {/* Navigation buttons directly under card content */}
               <div className={`flex mt-8 ${page > 0 ? 'justify-between' : 'justify-end'}`}>

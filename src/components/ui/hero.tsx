@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 
 // Load Spline dynamically client-side only
-const Spline = dynamic(() => import("@splinetool/react-spline").then((m:any)=>m.default), { ssr: false });
+const Spline = dynamic(() => import("@splinetool/react-spline").then((m:any)=>m.default), { ssr: false }) as any;
 
 export default function Globe3D() {
   return (
@@ -77,10 +77,11 @@ export default function Globe3D() {
         >
           <div className="w-full flex h-64 md:h-96 relative">
             <Suspense fallback={null}>
-              <Spline
-                className="absolute inset-0 w-full h-full object-cover"
-                scene="https://prod.spline.design/4rSGGXlG7TeC2F-0/scene.splinecode"
-              />
+              <div className="absolute inset-0 w-full h-full">
+                <Spline
+                  scene="https://prod.spline.design/4rSGGXlG7TeC2F-0/scene.splinecode"
+                />
+              </div>
             </Suspense>
           </div>
         </motion.div>

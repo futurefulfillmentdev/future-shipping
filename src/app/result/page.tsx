@@ -232,15 +232,19 @@ function SavingsSlider({ data }: { data: { orders: number; monthly_saving: numbe
       </div>
       
       <div className="mb-6">
-        <input
-          type="range"
-          min="0"
-          max={data.length - 1}
-          value={selectedIndex}
-          onChange={(e) => setSelectedIndex(parseInt(e.target.value))}
-          className="w-full h-3 rounded-lg appearance-none cursor-pointer transition-all duration-300 hover:h-4"
-          style={{ background: `linear-gradient(to right, #6BE53D 0%, #6BE53D ${(selectedIndex / (data.length - 1)) * 100}%, #374151 ${(selectedIndex / (data.length - 1)) * 100}%, #374151 100%)` }}
-        />
+        <div className="relative">
+          <input
+            type="range"
+            min="0"
+            max={data.length - 1}
+            value={selectedIndex}
+            onChange={(e) => setSelectedIndex(parseInt(e.target.value))}
+            className="premium-slider w-full h-2 rounded-full appearance-none cursor-pointer transition-all duration-300"
+            style={{ 
+              background: `linear-gradient(to right, #6BE53D 0%, #6BE53D ${(selectedIndex / (data.length - 1)) * 100}%, rgba(0,0,0,0.4) ${(selectedIndex / (data.length - 1)) * 100}%, rgba(0,0,0,0.4) 100%)`
+            }}
+          />
+        </div>
         <div className="flex justify-between text-sm text-gray-400 mt-2">
           <span>{data[0].orders} orders</span>
           <span>{data[data.length - 1].orders} orders</span>
@@ -260,6 +264,55 @@ function SavingsSlider({ data }: { data: { orders: number; monthly_saving: numbe
           </p>
         </div>
       </div>
+
+      <style jsx>{`
+        .premium-slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #6BE53D, #5BC72D);
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(8px);
+          box-shadow: 0 4px 16px rgba(107, 229, 61, 0.3), 0 0 0 4px rgba(107, 229, 61, 0.1);
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        
+        .premium-slider::-webkit-slider-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 6px 24px rgba(107, 229, 61, 0.4), 0 0 0 6px rgba(107, 229, 61, 0.15);
+        }
+        
+        .premium-slider::-moz-range-thumb {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #6BE53D, #5BC72D);
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 4px 16px rgba(107, 229, 61, 0.3), 0 0 0 4px rgba(107, 229, 61, 0.1);
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        
+        .premium-slider::-moz-range-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 6px 24px rgba(107, 229, 61, 0.4), 0 0 0 6px rgba(107, 229, 61, 0.15);
+        }
+        
+        .premium-slider::-webkit-slider-track {
+          height: 8px;
+          border-radius: 4px;
+          background: transparent;
+        }
+        
+        .premium-slider::-moz-range-track {
+          height: 8px;
+          border-radius: 4px;
+          background: transparent;
+          border: none;
+        }
+      `}</style>
     </motion.div>
   );
 }
@@ -532,16 +585,19 @@ export default function ResultPage() {
   const calendlySuffix = CALENDLY_SUFFIX[page_id.toUpperCase().replace('_', '_')] || '';
 
   // Extract all the enhanced insights from the result
-  const carrierHeadline = extractInsight(result.rendered_page, 'carrier_headline') || '';
-  const carrierTip = extractInsight(result.rendered_page, 'carrier_tip') || '';
-  const weightEducation = extractInsight(result.rendered_page, 'weight_education') || '';
-  const caseStudy = extractInsight(result.rendered_page, 'case_study') || '';
+  const carrierHeadline = String(extractInsight(result.rendered_page, 'carrier_headline') || '');
+  const carrierTip = String(extractInsight(result.rendered_page, 'carrier_tip') || '');
+  const weightEducation = String(extractInsight(result.rendered_page, 'weight_education') || '');
+  const caseStudy = String(extractInsight(result.rendered_page, 'case_study') || '');
 
   return (
     <div className="relative min-h-screen bg-black text-white overflow-hidden animate-fadeIn">
       {/* Green gradient background matching home page */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#6BE53D]/20 via-transparent to-transparent pointer-events-none"></div>
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none"></div>
+      
+      {/* Bottom green glow */}
+      <div className="absolute bottom-0 left-0 w-full h-96 bg-gradient-to-t from-[#6BE53D]/25 via-[#6BE53D]/15 to-transparent pointer-events-none"></div>
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 pt-safe-top pb-safe-bottom">
         
@@ -721,22 +777,28 @@ export default function ResultPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.4, ease: [0.23, 1, 0.32, 1] }}
-            className="text-center"
+            className="text-center mb-16 sm:mb-20 md:mb-24"
           >
             <a 
               href={"https://futurefulfilment.com/ausnz#section-0XX8Pbq9ZQ" + calendlySuffix}
               target="_blank"
               rel="noopener noreferrer"
-              className="liquid-button text-white font-semibold text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full inline-block mb-4 sm:mb-6"
+              className="liquid-button text-white font-semibold text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full inline-block mb-8 sm:mb-12"
             >
               👉 Get a Quote
             </a>
             
-            <div>
-              <Link href="/" className="text-sm sm:text-base transition-colors" style={{ color: '#6BE53D' }}>
-                ← Back to Home
-              </Link>
+            {/* Footer text */}
+            <div className="text-gray-400 text-xs sm:text-sm">
+              ©2025 Future Fulfilment. All rights reserved. • 
+              <a href="https://futurefulfilment.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="hover:text-[#6BE53D] transition-colors mx-1">
+                Privacy Policy
+              </a> • 
+              <a href="https://futurefulfilment.com/terms-of-use" target="_blank" rel="noopener noreferrer" className="hover:text-[#6BE53D] transition-colors mx-1">
+                Terms And Conditions
+              </a>
             </div>
+
           </motion.div>
         </motion.div>
       </div>

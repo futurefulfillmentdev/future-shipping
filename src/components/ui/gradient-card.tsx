@@ -6,7 +6,7 @@ interface GradientCardProps {
   step: string;
   title: string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   delay?: number;
 }
 
