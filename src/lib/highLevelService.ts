@@ -20,12 +20,44 @@ type FormAnswers = {
 };
 
 /**
+ * Determines qualification status based on volume range
+ * @param volumeRange - Volume range string like "300 – 500", "1000+", etc.
+ * @returns "qualified" if over 500, "unqualified" if under 500
+ */
+function getQualificationTag(volumeRange: string): string {
+  if (!volumeRange) return "unqualified";
+  
+  // Handle "1000+" format
+  if (volumeRange.includes("+")) {
+    const number = parseInt(volumeRange.replace(/[^0-9]/g, ""));
+    return number >= 500 ? "qualified" : "unqualified";
+  }
+  
+  // Handle range formats like "300 – 500", "500 – 1000"
+  const numbers = volumeRange.split(/[-–—]/).map(part => 
+    parseInt(part.replace(/[^0-9]/g, ""))
+  ).filter(n => !isNaN(n));
+  
+  if (numbers.length >= 1) {
+    // Use the lower bound of the range for qualification
+    const lowerBound = Math.min(...numbers);
+    return lowerBound >= 500 ? "qualified" : "unqualified";
+  }
+  
+  // Fallback for unparseable formats
+  return "unqualified";
+}
+
+/**
  * Pushes contact + custom field data to GoHighLevel using API v2.
  * 
  * Custom Fields Handling:
  * - Uses field names (keys) as per HighLevel API v2 for contact creation
  * - Field names must match exactly with custom fields created in HighLevel
  * - All custom fields are set as "Text" type in HighLevel
+ * 
+ * Lead Qualification:
+ * - Automatically tags contacts as "qualified" (500+ monthly orders) or "unqualified" (<500)
  * 
  * Requires the following env vars (set in .env.local):
  *   HL_API_KEY           – Bearer token (sub-account) with contacts.write permission
@@ -55,6 +87,9 @@ export async function pushToHighLevel(answers: FormAnswers) {
 
   // Extract primary product category for lead scoring
   const primaryCategory = answers.products.split(',')[0]?.trim() || answers.products;
+  
+  // Determine qualification tag based on volume range
+  const qualificationTag = getQualificationTag(answers.volume_range);
 
   const payload: Record<string, any> = {
     locationId,
@@ -64,7 +99,7 @@ export async function pushToHighLevel(answers: FormAnswers) {
     phone: answers.phone || undefined,
     website: answers.website_url || undefined,
     source: "Future Fulfillment Quiz", // Track lead source
-    tags: ["QUIZ"],
+    tags: ["QUIZ", qualificationTag],
     customFields: [
       // Core business data
       { key: "Products", value: answers.products },
