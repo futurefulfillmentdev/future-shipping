@@ -130,25 +130,6 @@ function buildSavingsSliderData(savingsPerOrder: number, currentOrders: number):
 
 // Removed duplicate - using enhanced version below
 
-// NEW: Case Study Component
-function CaseStudy({ caseStudy }: { caseStudy: string }) {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.7 }}
-      className="glass-morphism p-6 rounded-3xl border border-gray-700/50 mb-8"
-    >
-      <h4 className="text-xl font-bold mb-4" style={{ color: '#6BE53D' }}>
-        💼 Success Story
-      </h4>
-      <blockquote className="border-l-4 pl-4 italic text-gray-300" style={{ borderColor: '#6BE53D' }}>
-        {caseStudy}
-      </blockquote>
-    </motion.div>
-  );
-}
-
 // Removed old components - using enhanced versions below
 
 function SpeedBadge({ days }: { days: number }) {
@@ -380,7 +361,7 @@ const WeightPricingEducation = ({ weightEducation }: { weightEducation: string }
     <div className="bg-orange-500/10 rounded-lg p-4 border border-orange-500/20">
       <h4 className="font-medium text-orange-300 mb-2">Cubic Weight Formula</h4>
       <div className="font-mono text-sm text-gray-300 bg-black/30 p-2 rounded">
-        Cubic Weight = Length × Width × Height ÷ 5000
+        Cubic Weight = (L(cm) x W(cm) x H(cm)) / 4,000
       </div>
       <p className="text-sm text-gray-400 mt-2">Carriers charge for whichever is higher: actual weight or cubic weight</p>
     </div>
@@ -417,14 +398,11 @@ const CarrierRecommendation = ({
           <h3 className="text-xl font-semibold text-white">Best Carrier for You</h3>
         </div>
         <h4 className="text-lg font-medium text-[#6BE53D] mb-2">{productCategory}</h4>
-        <p className="text-gray-300 leading-relaxed">Most economical option (10-20 days). Good for low-value items under de minimis thresholds.</p>
+        <p className="text-gray-300 leading-relaxed">Most economical option (3-8 days worldwide). Good for low-value items under de minimis thresholds.</p>
         
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="px-3 py-1 bg-[#6BE53D]/20 text-[#6BE53D] rounded-full text-sm border border-[#6BE53D]/30">
             Recommended
-          </span>
-          <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm border border-green-500/30">
-            Cost-Effective
           </span>
         </div>
       </motion.div>
@@ -450,24 +428,6 @@ const CarrierRecommendation = ({
         bgColor: "bg-blue-500/20",
         textColor: "text-blue-300",
         borderColor: "border-blue-500/30"
-      });
-    }
-    
-    if (headline.toLowerCase().includes('economy') || headline.toLowerCase().includes('epacket')) {
-      badges.push({
-        text: "Cost-Effective",
-        bgColor: "bg-green-500/20",
-        textColor: "text-green-300",
-        borderColor: "border-green-500/30"
-      });
-    }
-    
-    if (headline.toLowerCase().includes('cubic')) {
-      badges.push({
-        text: "Cubic Weight",
-        bgColor: "bg-purple-500/20",
-        textColor: "text-purple-300",
-        borderColor: "border-purple-500/30"
       });
     }
     
@@ -599,7 +559,6 @@ export default function ResultPage() {
   const carrierHeadline = String(extractInsight(result.rendered_page, 'carrier_headline') || '');
   const carrierTip = String(extractInsight(result.rendered_page, 'carrier_tip') || '');
   const weightEducation = String(extractInsight(result.rendered_page, 'weight_education') || '');
-  const caseStudy = String(extractInsight(result.rendered_page, 'case_study') || '');
 
   return (
     <div className="relative min-h-screen bg-black text-white overflow-hidden animate-fadeIn">
@@ -677,8 +636,6 @@ export default function ResultPage() {
         />
         
         <WeightPricingEducation weightEducation={weightEducation} />
-        
-        <CaseStudy caseStudy={caseStudy} />
         
 
 

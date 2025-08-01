@@ -2,186 +2,108 @@
 
 import React, { useState } from "react";
 
-export default function TestHighLevel() {
-  const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-    website: "",
-    monthly_order_volume: "",
-    country: ""
-  });
-  
-  const [response, setResponse] = useState<any>(null);
+export default function TestHighLevelPage() {
+  const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const testData = {
+    full_name: "Test User",
+    email: "test@example.com",
+    phone: "+1234567890",
+    website_url: "example.com",
+    products: "Clothing & Accessories",
+    package_weight_choice: "0.5 kg – 1 kg",
+    package_size_choice: "Small (<3 cm thick)",
+    volume_range: "300 – 500",
+    customer_location_choice: "Australia only",
+    current_shipping_method: "Home / garage",
+    biggest_shipping_problem: "Costs too high",
+    sku_range_choice: "26-100",
+    delivery_expectation_choice: "2-3 days",
+    shipping_cost_choice: "$5-$10",
+    category: "Clothing & Accessories"
+  };
+
+  const testHighLevel = async () => {
     setLoading(true);
-    setResponse(null);
+    setError(null);
+    setResult(null);
 
     try {
-      const res = await fetch("/api/highlevel/test-route", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      console.log("Testing HighLevel API with data:", testData);
+      
+      const response = await fetch('/api/highlevel', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json' 
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(testData)
       });
 
-      const data = await res.json();
-      setResponse({
-        status: res.status,
-        data,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      setResponse({
-        status: "ERROR",
-        data: { error: error instanceof Error ? error.message : "Unknown error" },
-        timestamp: new Date().toISOString()
-      });
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+
+      const data = await response.json();
+      console.log("Response data:", data);
+
+      if (response.ok) {
+        setResult(data);
+      } else {
+        setError(`HTTP ${response.status}: ${data.error || data.message || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError(`Network error: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-[#6BE53D]">HighLevel API Test</h1>
+        <h1 className="text-3xl font-bold mb-8">HighLevel API Test</h1>
         
-        <form onSubmit={handleSubmit} className="space-y-6 bg-white/5 p-8 rounded-2xl">
-          <div>
-            <label className="block text-sm font-medium mb-2">Full Name *</label>
-            <input
-              type="text"
-              name="full_name"
-              value={formData.full_name}
-              onChange={handleInputChange}
-              required
-              className="w-full p-3 bg-black/20 border border-white/20 rounded-lg text-white placeholder-gray-400"
-              placeholder="Full Name"
-            />
-          </div>
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Test Data</h2>
+          <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
+            {JSON.stringify(testData, null, 2)}
+          </pre>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Email *</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              className="w-full p-3 bg-black/20 border border-white/20 rounded-lg text-white placeholder-gray-400"
-              placeholder="Email"
-            />
-          </div>
+        <button
+          onClick={testHighLevel}
+          disabled={loading}
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+        >
+          {loading ? "Testing..." : "Test HighLevel API"}
+        </button>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Phone *</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              className="w-full p-3 bg-black/20 border border-white/20 rounded-lg text-white placeholder-gray-400"
-              placeholder="Phone"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Website *</label>
-            <input
-              type="url"
-              name="website"
-              value={formData.website}
-              onChange={handleInputChange}
-              className="w-full p-3 bg-black/20 border border-white/20 rounded-lg text-white placeholder-gray-400"
-              placeholder="Web URL goes here"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Monthly Order Volume *</label>
-            <input
-              type="text"
-              name="monthly_order_volume"
-              value={formData.monthly_order_volume}
-              onChange={handleInputChange}
-              className="w-full p-3 bg-black/20 border border-white/20 rounded-lg text-white placeholder-gray-400"
-              placeholder="Example: 50"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Country *</label>
-            <select
-              name="country"
-              value={formData.country}
-              onChange={handleInputChange}
-              className="w-full p-3 bg-black/20 border border-white/20 rounded-lg text-white"
-            >
-              <option value="">Select Country</option>
-              <option value="Australia">Australia</option>
-              <option value="United States">United States</option>
-              <option value="Canada">Canada</option>
-              <option value="United Kingdom">United Kingdom</option>
-              <option value="New Zealand">New Zealand</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#6BE53D] hover:bg-[#5BC72D] text-black font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
-          >
-            {loading ? "Testing..." : "Test HighLevel API"}
-          </button>
-        </form>
-
-        {response && (
-          <div className="mt-8 bg-white/5 p-6 rounded-2xl">
-            <h2 className="text-xl font-bold mb-4">API Response</h2>
-            <div className="mb-2">
-              <span className="font-medium">Status: </span>
-              <span className={response.status === 200 ? "text-green-400" : "text-red-400"}>
-                {response.status}
-              </span>
-            </div>
-            <div className="mb-2">
-              <span className="font-medium">Time: </span>
-              <span className="text-gray-300">{response.timestamp}</span>
-            </div>
-            <div>
-              <span className="font-medium">Response:</span>
-              <pre className="mt-2 p-4 bg-black/30 rounded-lg overflow-auto text-sm">
-                {JSON.stringify(response.data, null, 2)}
-              </pre>
-            </div>
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <h3 className="text-red-800 font-semibold mb-2">Error</h3>
+            <p className="text-red-700">{error}</p>
           </div>
         )}
 
-        <div className="mt-8 p-6 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl">
-          <h3 className="text-yellow-400 font-bold mb-2">Setup Instructions:</h3>
-          <ol className="list-decimal list-inside space-y-2 text-sm">
-            <li>Create a <code className="bg-black/30 px-1 rounded">.env.local</code> file in your quiz-app directory</li>
-            <li>Add your HighLevel credentials:
-              <pre className="mt-1 p-2 bg-black/30 rounded text-xs">
-{`HL_API_KEY=your_api_key_here
-HL_LOCATION_ID=your_location_id_here
-HL_DEBUG=true`}
-              </pre>
-            </li>
-            <li>Get your API key from HighLevel: Settings → API & Webhooks → Create API Key</li>
-            <li>Find your Location ID in your HighLevel URL or API documentation</li>
+        {result && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <h3 className="text-green-800 font-semibold mb-2">Success</h3>
+            <pre className="text-green-700 text-sm overflow-auto">
+              {JSON.stringify(result, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <h3 className="text-yellow-800 font-semibold mb-2">Debug Instructions</h3>
+          <ol className="text-yellow-700 space-y-1 list-decimal list-inside">
+            <li>Open browser developer tools (F12)</li>
+            <li>Go to the Console tab</li>
+            <li>Click "Test HighLevel API" button</li>
+            <li>Check console logs for detailed request/response information</li>
+            <li>Check Network tab for HTTP request details</li>
           </ol>
         </div>
       </div>

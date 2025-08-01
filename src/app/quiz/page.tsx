@@ -89,7 +89,7 @@ const steps: Step[] = [
     stateKey: "website",
     placeholder: "yourwebsite.com",
     helperPrefix: "https://",
-    pattern: "^(([a-zA-Z0-9-]+)\\.)+[a-zA-Z]{2,}$",
+    pattern: "^(([a-zA-Z0-9\\-]+)\\.)+[a-zA-Z]{2,}$",
   },
   {
     kind: "choice",
@@ -290,18 +290,12 @@ export default function QuizPage() {
     }).then(async response => {
       const result = await response.json();
       if (response.ok && result.ok) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`HighLevel sync successful: Contact ${result.action}`, result.contactId);
-        }
+        console.log(`HighLevel sync successful: Contact ${result.action}`, result.contactId);
       } else {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('HighLevel sync had issues:', result.error);
-        }
+        console.warn('HighLevel sync had issues:', result.error || result.message);
       }
     }).catch((err) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('HighLevel sync failed', err);
-      }
+      console.error('HighLevel sync failed:', err.message);
     });
     
     // Premium, deliberate animation sequence

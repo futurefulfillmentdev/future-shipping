@@ -332,7 +332,7 @@ interface CarrierReco {
 
 const CARRIER_MATRIX: CarrierReco[] = [
   // AUS_DOM - Enhanced with cubic weight education
-  { id: "auspost_cubic", lane: "AUS_DOM", weight_max: 2, headline: "Australia Post Cubic eParcel", tip: "Uses cubic weight (L×W×H÷5000) vs actual weight. Ideal for light, bulky items. Optimize packaging to reduce cubic weight." },
+  { id: "auspost_cubic", lane: "AUS_DOM", weight_max: 2, headline: "Australia Post eParcel", tip: "Uses cubic weight (L(cm) x W(cm) x H(cm)) / 4,000 vs actual weight. Ideal for light, bulky items. Optimize packaging to reduce cubic weight." },
   { id: "startrack_express", lane: "AUS_DOM", weight_max: 5, headline: "StarTrack Express", tip: "Best for 2-5kg items with next-day metro delivery. Volume discounts available for 500+ parcels/month." },
   { id: "tnt_express", lane: "AUS_DOM", weight_max: Infinity, headline: "TNT Express", tip: "Premium same-day and next-day service in major cities. Real-time tracking and proof of delivery." },
   
@@ -342,18 +342,10 @@ const CARRIER_MATRIX: CarrierReco[] = [
   { id: "fedex_priority", lane: "AUS_INTL", weight_max: Infinity, headline: "FedEx International Priority", tip: "Reliable 1-3 day delivery with strong tracking. Good for urgent international shipments." },
   
   // CN_GLOBAL - Enhanced with compliance information
-  { id: "sf_express", lane: "CN_GLOBAL", weight_max: 1, headline: "SF Express International", tip: "Premium service with 5-7 day delivery. Strong compliance for electronics and regulated goods." },
-  { id: "china_post", lane: "CN_GLOBAL", weight_max: 2, headline: "China Post ePacket", tip: "Most economical option (10-20 days). Good for low-value items under de minimis thresholds." },
-  { id: "dhl_ecommerce", lane: "CN_GLOBAL", weight_max: Infinity, headline: "DHL eCommerce", tip: "Best balance of cost and speed (5-10 days). Excellent for consolidated shipments and bulk orders." }
+  { id: "sf_express", lane: "CN_GLOBAL", weight_max: 1, headline: "SF Express International", tip: "Premium service with 3-8 day delivery (worldwide). Strong compliance for electronics and regulated goods." },
+  { id: "china_post", lane: "CN_GLOBAL", weight_max: 2, headline: "China Post ePacket", tip: "Most economical option with 3-8 day delivery (worldwide). Good for low-value items under de minimis thresholds." },
+  { id: "dhl_ecommerce", lane: "CN_GLOBAL", weight_max: Infinity, headline: "DHL eCommerce", tip: "Best balance of cost and speed with 3-8 day delivery (worldwide). Excellent for consolidated shipments and bulk orders." }
 ];
-
-// NEW: Case study snippets
-const CASE_STUDIES: Record<string, string> = {
-  DIY: "\"Packing 400 orders/month, Sophie saved 40% pick-time using our DIY toolkit.\"",
-  AUS_3PL: "\"4WD Detail cut A$2,400/mo at 800 orders by moving to our Melbourne hub.\"",
-  AUS_MULTI: "\"Health & Balance Vitamins saw 18% more 5-star reviews after adding QLD warehousing.\"",
-  CHINA_3PL: "\"EcoLuxe slashed intl cost by US$8/parcel after relocating stock to Shenzhen.\""
-};
 
 // Helper functions
 function clamp(num: number, min: number, max: number) { return Math.max(min, Math.min(num, max)); }
@@ -660,19 +652,19 @@ function getWeightPricingEducation(answers: QuizFormAnswers): string {
   const packageSize = answers.package_size_choice.toLowerCase();
   
   // Example calculation for cubic weight
-  let dimensions = "30×20×15cm";
+  let dimensions = "30(cm) x 20(cm) x 15(cm)";
   let actualWeight = parseWeight(answers);
-  let cubicWeight = (30 * 20 * 15) / 5000; // Australia Post formula
+  let cubicWeight = (30 * 20 * 15) / 4000; // Updated formula
   
   if (packageSize.includes("small")) {
-    dimensions = "25×15×10cm";
-    cubicWeight = (25 * 15 * 10) / 5000;
+    dimensions = "25(cm) x 15(cm) x 10(cm)";
+    cubicWeight = (25 * 15 * 10) / 4000;
   } else if (packageSize.includes("large")) {
-    dimensions = "40×30×20cm";
-    cubicWeight = (40 * 30 * 20) / 5000;
+    dimensions = "40(cm) x 30(cm) x 20(cm)";
+    cubicWeight = (40 * 30 * 20) / 4000;
   } else if (packageSize.includes("very large")) {
-    dimensions = "50×40×30cm";
-    cubicWeight = (50 * 40 * 30) / 5000;
+    dimensions = "50(cm) x 40(cm) x 30(cm)";
+    cubicWeight = (50 * 40 * 30) / 4000;
   }
   
   const chargeableWeight = Math.max(actualWeight, cubicWeight);
@@ -680,7 +672,7 @@ function getWeightPricingEducation(answers: QuizFormAnswers): string {
     `You're paying for ${cubicWeight.toFixed(1)}kg cubic weight vs ${actualWeight}kg actual weight. Optimize packaging to save costs.` :
     `Your actual weight (${actualWeight}kg) exceeds cubic weight (${cubicWeight.toFixed(1)}kg) - good packaging efficiency.`;
   
-  return `📦 Shipping Weight Education: Carriers charge for "chargeable weight" - the higher of actual vs cubic weight. Example: ${dimensions} package = ${cubicWeight.toFixed(1)}kg cubic weight (L×W×H÷5000). ${savings}`;
+  return `📦 Shipping Weight Education: Carriers charge for "chargeable weight" - the higher of actual vs cubic weight. Example: ${dimensions} package = ${cubicWeight.toFixed(1)}kg cubic weight (L(cm) x W(cm) x H(cm)) / 4,000. ${savings}`;
 }
 
 // NEW: Warehouse Cost Comparison
@@ -777,7 +769,6 @@ function renderPage(decision: FulfillmentDecision, content: any, extras: Record<
     inv_alert_text = "",
     carrier_headline = "",
     carrier_tip = "",
-    case_study = "",
     weight_education = "",
     warehouse_costs = "",
     confidence_level = null,
@@ -842,8 +833,6 @@ function renderPage(decision: FulfillmentDecision, content: any, extras: Record<
 
   // Warehouse cost comparison
   html += `<div class="warehouse-cost-box">${warehouse_costs}</div>`;
-
-  html += `<blockquote>${case_study}</blockquote>`;
 
   // Savings slider data (as JSON script for front-end usage)
   if (savings_slider_data) {
@@ -931,7 +920,6 @@ export function generateResult(form: QuizFormAnswers): { page_id: string; render
   const margin_alert_text = getMarginAlert(form);
   const inv_alert_text = getInventoryAlert(form);
   const carrier = chooseCarrier(form, decision);
-  const case_study = CASE_STUDIES[decision] || "";
   const weight_education = getWeightPricingEducation(form);
   const warehouse_costs = getWarehouseCostComparison(form, decision);
 
@@ -955,7 +943,6 @@ export function generateResult(form: QuizFormAnswers): { page_id: string; render
     inv_alert_text,
     carrier_headline: carrier.headline,
     carrier_tip: carrier.tip,
-    case_study,
     weight_education,
     warehouse_costs,
     confidence_level,
