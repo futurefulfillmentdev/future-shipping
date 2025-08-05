@@ -18,8 +18,83 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Future Fulfilment Quiz",
-  description: "Shipping optimization onboarding quiz",
+  title: "Shipping Cost Analyzer | Ecommerce Fulfillment - Save $1000s Per Month",
+  description: "Free Shipping Cost Analyzer finds your cheapest fulfillment option instantly. We analyzed 1,000+ eCommerce brands across Australia & China to create an AI that finds the most cost-effective shipping strategy for YOUR business.",
+  keywords: [
+    "shipping cost analyzer",
+    "ecommerce fulfillment",
+    "shipping optimization",
+    "fulfillment costs",
+    "shipping strategy",
+    "ecommerce shipping",
+    "logistics optimization",
+    "shipping calculator",
+    "fulfillment analyzer",
+    "shipping savings"
+  ],
+  authors: [{ name: "Future Fulfillment" }],
+  creator: "Future Fulfillment",
+  publisher: "Future Fulfillment",
+  category: "Business Tools",
+  
+  // Open Graph metadata for social sharing
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.ecommercefulfilment.ai/",
+    title: "Free Shipping Cost Analyzer | Save $1000s on Ecommerce Fulfillment",
+    description: "This Free \"Shipping Cost Analyzer\" Will Find Your Cheapest Fulfillment Option & Save You $1000s Per Month. AI-powered analysis of 1,000+ eCommerce brands.",
+    siteName: "Future Fulfillment",
+    images: [
+      {
+        url: "/future-share.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Free Shipping Cost Analyzer - Save $1000s Per Month on Ecommerce Fulfillment",
+      },
+    ],
+  },
+  
+  // Twitter Card metadata
+  twitter: {
+    card: "summary_large_image",
+    title: "Free Shipping Cost Analyzer | Save $1000s on Ecommerce Fulfillment",
+    description: "AI-powered shipping cost analyzer finds your cheapest fulfillment option instantly. Analyzed 1,000+ eCommerce brands to optimize YOUR shipping strategy.",
+    images: ["/future-share.jpg"],
+    creator: "@futurefulfillment",
+    site: "@futurefulfillment",
+  },
+  
+  // Additional metadata
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  
+  // Verification and analytics
+  verification: {
+    google: "your-google-verification-code",
+    yandex: "your-yandex-verification-code",
+    yahoo: "your-yahoo-verification-code",
+  },
+  
+  // App-specific metadata
+  applicationName: "Shipping Cost Analyzer",
+  referrer: "origin-when-cross-origin",
+  
+  // Additional structured data
+  other: {
+    "application-name": "Shipping Cost Analyzer",
+    "msapplication-TileColor": "#000000",
+    "theme-color": "#000000",
+  },
 };
 
 export default function RootLayout({
