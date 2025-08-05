@@ -18,7 +18,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Shipping Cost Analyzer | Ecommerce Fulfillment - Save $1000s Per Month",
+  title: "Shipping Cost Analyzer | Ecommerce Fulfilment - Save $1000s Per Month",
   description: "Free Shipping Cost Analyzer finds your cheapest fulfillment option instantly. We analyzed 1,000+ eCommerce brands across Australia & China to create an AI that finds the most cost-effective shipping strategy for YOUR business.",
   keywords: [
     "shipping cost analyzer",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://www.ecommercefulfilment.ai/",
-    title: "Free Shipping Cost Analyzer | Save $1000s on Ecommerce Fulfillment",
+    title: "Free Shipping Cost Analyzer | Save $1000s on Ecommerce Fulfilment",
     description: "This Free \"Shipping Cost Analyzer\" Will Find Your Cheapest Fulfillment Option & Save You $1000s Per Month. AI-powered analysis of 1,000+ eCommerce brands.",
     siteName: "Future Fulfillment",
     images: [
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
         url: "/future-share.jpg",
         width: 1200,
         height: 630,
-        alt: "Free Shipping Cost Analyzer - Save $1000s Per Month on Ecommerce Fulfillment",
+        alt: "Free Shipping Cost Analyzer - Save $1000s Per Month on Ecommerce Fulfilment",
       },
     ],
   },
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   // Twitter Card metadata
   twitter: {
     card: "summary_large_image",
-    title: "Free Shipping Cost Analyzer | Save $1000s on Ecommerce Fulfillment",
+    title: "Free Shipping Cost Analyzer | Save $1000s on Ecommerce Fulfilment",
     description: "AI-powered shipping cost analyzer finds your cheapest fulfillment option instantly. Analyzed 1,000+ eCommerce brands to optimize YOUR shipping strategy.",
     images: ["/future-share.jpg"],
     creator: "@futurefulfillment",
