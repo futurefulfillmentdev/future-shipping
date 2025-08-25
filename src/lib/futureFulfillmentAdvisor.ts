@@ -33,7 +33,7 @@ function decideFulfillmentOption(answers: QuizFormAnswers): FulfillmentDecision 
   };
   // Existing & new helper values
   const monthlyOrders = orderMapping[answers.volume_range] || 0;
-  const isFromChina = answers.current_shipping_method === "3PL in China";
+  const isFromChina = (answers.current_shipping_method || "").toLowerCase().includes("china");
   const isGlobalFocus = answers.customer_location_choice?.includes("international");
   const skuCount = parseSkuCount(answers);
   const fastDeliveryExpect = (answers.delivery_expectation_choice || "").startsWith("Same");
@@ -71,9 +71,15 @@ function decideFulfillmentOption(answers: QuizFormAnswers): FulfillmentDecision 
     return "DIY";
   }
 
-  // If manufacturing in China or explicitly global focus → China 3PL
-  if (isFromChina || (isGlobalFocus && monthlyOrders >= 500)) {
-    return "CHINA_3PL";
+  // China 3PL only when shipping/manufacturing from China AND >=500/mo.
+  // If parcels are heavy (>5kg), localize to AUS 3PL to avoid high intl fees.
+  if (isFromChina && monthlyOrders >= 500) {
+    return avgWeight > 5 ? "AUS_3PL" : "CHINA_3PL";
+  }
+
+  // Majority global shipments without China origin → default to AUS 3PL (global-capable)
+  if (isGlobalFocus && monthlyOrders >= 500 && !isFromChina) {
+    return "AUS_3PL";
   }
 
   // Fast delivery expectation (<2 days) should push to multi-state where possible
@@ -115,28 +121,30 @@ function calculateSavings(decision: FulfillmentDecision, answers: QuizFormAnswer
 
   switch (decision) {
     case "DIY":
-      savingsPerOrder = 0.5; // Up to $0.50 saved per order with OMS tools
+      // Small efficiency gains from OMS/tools
+      savingsPerOrder = 0.5;
       break;
-    
-    case "AUS_3PL":
-      savingsPerOrder = 1; // $1 per order for AUS 3PL
+
+    case "AUS_3PL": {
+      // AUS to AUS ranges
+      // 500–2000 → up to $3/order, 2000+ → up to $4/order
+      savingsPerOrder = monthlyOrders >= 2000 ? 4 : 3;
       break;
-      
+    }
+
     case "AUS_MULTI":
-      savingsPerOrder = 2; // $2 per order for multi-state
+      // 2000+ orders → up to $4/order
+      savingsPerOrder = 4;
       break;
-      
-    case "CHINA_3PL":
-      // Weight-based savings tiers per client notes
-      const weight = answers.package_weight_choice || "";
-      if (weight.includes("Under 0.5") || weight.includes("0.5 kg")) {
-        savingsPerOrder = 8;
-      } else if (weight.includes("1 kg") || weight.includes("1 kg – 2 kg")) {
-        savingsPerOrder = 5;
-      } else {
-        savingsPerOrder = 4;
-      }
+
+    case "CHINA_3PL": {
+      // China to Global weight tiers
+      const w = parseWeight(answers);
+      if (w < 1) savingsPerOrder = 10; // <1kg
+      else if (w <= 2) savingsPerOrder = 7; // 1–2kg
+      else savingsPerOrder = 4; // >2kg
       break;
+    }
   }
 
   return {
@@ -219,7 +227,7 @@ function getResultContent(decision: FulfillmentDecision, firstname: string, savi
         ctaTitle: "📞 Book Your Free Fulfillment Strategy Call", 
         ctaText: "We'll show you how to optimize your global shipping strategy.",
         ctaUrl: "https://futurefulfilment.com/ausnz#section-0XX8Pbq9ZQ",
-        note: null
+        note: "Note: China-based fulfillment has limited returns handling. If >10% of orders are returned or you need hassle-free exchanges, use AUS 3PL for returns."
       };
 
     default:
@@ -457,17 +465,30 @@ function calcShippingHealth(answers: QuizFormAnswers, decision: FulfillmentDecis
   }
   
   // Shipping problems impact
-  const problem = answers.biggest_shipping_problem;
-  if (problem === "Costs too much") {
+  // Normalize quiz problem labels to internal categories
+  const problemRaw = (answers.biggest_shipping_problem || "").toLowerCase();
+  let problem: "cost" | "speed" | "returns" | "time" | "intl" | "tracking" | "other" = "other";
+  if (problemRaw.includes("cost")) problem = "cost";
+  else if (problemRaw.includes("slow") || problemRaw.includes("delivery")) problem = "speed";
+  else if (problemRaw.includes("return")) problem = "returns";
+  else if (problemRaw.includes("time")) problem = "time";
+  else if (problemRaw.includes("international")) problem = "intl";
+  else if (problemRaw.includes("track")) problem = "tracking";
+
+  if (problem === "cost") {
     score -= 10; // Already factored in cost, but compounds the issue
-  } else if (problem === "Takes too long") {
+  } else if (problem === "speed") {
     score -= 8;
-  } else if (problem === "Hard to manage returns") {
+  } else if (problem === "returns") {
     score -= 12;
-  } else if (problem === "Packaging issues") {
+  } else if (problem === "intl") {
+    score -= 10;
+  } else if (problem === "time") {
     score -= 6;
-  } else if (problem === "Tracking problems") {
+  } else if (problem === "tracking") {
     score -= 5;
+  } else {
+    score -= 6;
   }
   
   // Customer location complexity - Enhanced
@@ -501,7 +522,7 @@ function calcShippingHealth(answers: QuizFormAnswers, decision: FulfillmentDecis
   }
   
   // Return complexity factor (new)
-  if (answers.biggest_shipping_problem === "Hard to manage returns") {
+  if (problem === "returns") {
     if (answers.customer_location_choice.includes("international")) {
       score -= 8; // International returns are very complex
     }
